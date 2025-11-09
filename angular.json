@@ -30,7 +30,7 @@
               }
             ],
             "styles": [
-              "src/styles.sass"
+              "src/tailwind.css"
             ],
             "externalDependencies": ["tailwindcss"]
           },

@@ -507,7 +507,7 @@
                         </p>
                         @if (isOwner || isAdmin) {
                           <button
-                            (click)="document.getElementById('main-image-input')?.click()"
+                            (click)="openMainImageSelector()"
                             class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white text-sm font-semibold rounded-lg hover:bg-yellow-700 transition-colors"
                           >
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

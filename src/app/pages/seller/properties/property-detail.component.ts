@@ -347,6 +347,13 @@ export class PropertyDetailComponent implements OnInit {
     if (fileInput) fileInput.value = '';
   }
 
+  openMainImageSelector(): void {
+    const fileInput = document.getElementById('main-image-input') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+
   onImagesSelected(event: any): void {
     const files = Array.from(event.target.files) as File[];
     this.selectedImages = files;
