@@ -1,0 +1,548 @@
+<div class="max-w-4xl mx-auto py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-4xl font-display font-bold text-slate-900 mb-2">Modifier le bien</h1>
+    <p class="text-slate-600">Modifiez les informations ci-dessous pour mettre à jour votre annonce</p>
+  </div>
+
+  @if (success) {
+    <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-lg mb-6">
+      <div class="flex items-start">
+        <svg class="w-6 h-6 text-green-500 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div>
+          <h3 class="text-lg font-semibold text-green-800 mb-1">Bien modifié avec succès !</h3>
+          <p class="text-green-700">Redirection en cours...</p>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (error) {
+    <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg mb-6">
+      <div class="flex items-start">
+        <svg class="w-6 h-6 text-red-500 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <p class="text-red-800">{{ error }}</p>
+      </div>
+    </div>
+  }
+
+  <!-- Progress Bar - Sticky Header -->
+  <div class="sticky top-0 bg-white z-40 py-4 mb-8 border-b border-slate-200 shadow-sm -mx-6 sm:-mx-8 lg:-mx-12 px-6 sm:px-8 lg:px-12">
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-sm font-medium text-slate-700">Étape {{ currentStep }} sur {{ totalSteps }}</span>
+      <span class="text-sm font-medium text-blue-600">{{ round(getStepProgress()) }}%</span>
+    </div>
+    <div class="w-full bg-slate-200 rounded-full h-2">
+      <div 
+        class="bg-gradient-to-r from-blue-600 to-blue-700 h-2 rounded-full transition-all duration-300"
+        [style.width.%]="getStepProgress()"
+      ></div>
+    </div>
+    <!-- Step Indicators -->
+    <div class="flex justify-between mt-4">
+      @for (step of [1, 2, 3, 4]; track step) {
+        <div class="flex flex-col items-center flex-1">
+          <div 
+            [class]="'w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm transition-all ' + 
+              (step === currentStep ? 'bg-blue-600 text-white scale-110' : 
+               step < currentStep ? 'bg-green-500 text-white' : 
+               'bg-slate-200 text-slate-500')"
+          >
+            @if (step < currentStep) {
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            } @else {
+              {{ step }}
+            }
+          </div>
+          <span 
+            [class]="'text-xs mt-1 font-medium ' + 
+              (step === currentStep ? 'text-blue-600' : 
+               step < currentStep ? 'text-green-600' : 
+               'text-slate-400')"
+          >
+            @switch (step) {
+              @case (1) { Informations }
+              @case (2) { Caractéristiques }
+              @case (3) { Équipements }
+              @case (4) { Localisation }
+            }
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Form -->
+  @if (propertyForm) {
+  <form [formGroup]="propertyForm" (ngSubmit)="onSubmit()">
+    <!-- Step 1: Informations de base -->
+    @if (currentStep === 1) {
+      <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-8 space-y-6">
+        <div class="flex items-center space-x-3 mb-6">
+          <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
+          <h2 class="text-2xl font-bold text-slate-900">Informations de base</h2>
+        </div>
+
+        <div>
+          <label for="title" class="block text-sm font-semibold text-slate-700 mb-2">
+            Titre de l'annonce <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="title"
+            formControlName="title"
+            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors
+              {{ propertyForm.get('title')?.invalid && propertyForm.get('title')?.touched ? 'border-red-300 bg-red-50' : 'border-slate-300' }}"
+            placeholder="Ex: Magnifique villa 4 chambres à Cotonou"
+          />
+          @if (propertyForm.get('title')?.hasError('required') && propertyForm.get('title')?.touched) {
+            <p class="mt-2 text-sm text-red-600">Le titre est requis</p>
+          }
+          @if (propertyForm.get('title')?.hasError('maxlength') && propertyForm.get('title')?.touched) {
+            <p class="mt-2 text-sm text-red-600">Le titre ne peut pas dépasser 255 caractères</p>
+          }
+        </div>
+
+        <div>
+          <label for="description" class="block text-sm font-semibold text-slate-700 mb-2">
+            Description <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="6"
+            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none
+              {{ propertyForm.get('description')?.invalid && propertyForm.get('description')?.touched ? 'border-red-300 bg-red-50' : 'border-slate-300' }}"
+            placeholder="Décrivez votre bien en détail..."
+          ></textarea>
+          <div class="mt-1 flex justify-between text-xs text-slate-500">
+            <span>Décrivez les points forts de votre bien</span>
+            <span>{{ propertyForm.get('description')?.value?.length || 0 }} / 5000</span>
+          </div>
+          @if (propertyForm.get('description')?.hasError('required') && propertyForm.get('description')?.touched) {
+            <p class="mt-2 text-sm text-red-600">La description est requise</p>
+          }
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="reference" class="block text-sm font-semibold text-slate-700 mb-2">
+              Référence <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="reference"
+              formControlName="reference"
+              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors
+                {{ propertyForm.get('reference')?.invalid && propertyForm.get('reference')?.touched ? 'border-red-300 bg-red-50' : 'border-slate-300' }}"
+              placeholder="Ex: VIL-2024-001"
+            />
+            <p class="mt-1 text-xs text-slate-500">Référence unique pour identifier votre bien</p>
+            @if (propertyForm.get('reference')?.hasError('required') && propertyForm.get('reference')?.touched) {
+              <p class="mt-2 text-sm text-red-600">La référence est requise</p>
+            }
+          </div>
+
+          <div>
+            <label for="property_type_id" class="block text-sm font-semibold text-slate-700 mb-2">
+              Type de bien <span class="text-red-500">*</span>
+            </label>
+            <select
+              id="property_type_id"
+              formControlName="property_type_id"
+              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors
+                {{ propertyForm.get('property_type_id')?.invalid && propertyForm.get('property_type_id')?.touched ? 'border-red-300 bg-red-50' : 'border-slate-300' }}"
+            >
+              <option value="">Sélectionnez un type</option>
+              @for (type of propertyTypes; track type.id) {
+                <option [value]="type.id">{{ type.name }}</option>
+              }
+            </select>
+            @if (propertyForm.get('property_type_id')?.hasError('required') && propertyForm.get('property_type_id')?.touched) {
+              <p class="mt-2 text-sm text-red-600">Le type de bien est requis</p>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Step 2: Prix et caractéristiques -->
+    @if (currentStep === 2) {
+      <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-8 space-y-6">
+        <div class="flex items-center space-x-3 mb-6">
+          <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
+          <h2 class="text-2xl font-bold text-slate-900">Prix et caractéristiques</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="price" class="block text-sm font-semibold text-slate-700 mb-2">
+              Prix (FCFA) <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500">FCFA</span>
+              <input
+                type="number"
+                id="price"
+                formControlName="price"
+                min="0"
+                step="1000"
+                class="w-full pl-16 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors
+                  {{ propertyForm.get('price')?.invalid && propertyForm.get('price')?.touched ? 'border-red-300 bg-red-50' : 'border-slate-300' }}"
+                placeholder="0"
+              />
+            </div>
+            @if (propertyForm.get('price')?.hasError('required') && propertyForm.get('price')?.touched) {
+              <p class="mt-2 text-sm text-red-600">Le prix est requis</p>
+            }
+            @if (propertyForm.get('price')?.hasError('min') && propertyForm.get('price')?.touched) {
+              <p class="mt-2 text-sm text-red-600">Le prix doit être positif</p>
+            }
+          </div>
+
+          <div>
+            <label for="surface_area" class="block text-sm font-semibold text-slate-700 mb-2">
+              Surface (m²) <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500">m²</span>
+              <input
+                type="number"
+                id="surface_area"
+                formControlName="surface_area"
+                min="0"
+                step="0.01"
+                class="w-full px-4 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors
+                  {{ propertyForm.get('surface_area')?.invalid && propertyForm.get('surface_area')?.touched ? 'border-red-300 bg-red-50' : 'border-slate-300' }}"
+                placeholder="0"
+              />
+            </div>
+            @if (propertyForm.get('surface_area')?.hasError('required') && propertyForm.get('surface_area')?.touched) {
+              <p class="mt-2 text-sm text-red-600">La surface est requise</p>
+            }
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div>
+            <label for="rooms" class="block text-sm font-semibold text-slate-700 mb-2">Pièces</label>
+            <input
+              type="number"
+              id="rooms"
+              formControlName="rooms"
+              min="0"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="bedrooms" class="block text-sm font-semibold text-slate-700 mb-2">Chambres</label>
+            <input
+              type="number"
+              id="bedrooms"
+              formControlName="bedrooms"
+              min="0"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="bathrooms" class="block text-sm font-semibold text-slate-700 mb-2">Salles de bain</label>
+            <input
+              type="number"
+              id="bathrooms"
+              formControlName="bathrooms"
+              min="0"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="floors" class="block text-sm font-semibold text-slate-700 mb-2">Étages</label>
+            <input
+              type="number"
+              id="floors"
+              formControlName="floors"
+              min="0"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="year_built" class="block text-sm font-semibold text-slate-700 mb-2">Année de construction</label>
+            <input
+              type="number"
+              id="year_built"
+              formControlName="year_built"
+              min="1800"
+              [max]="getCurrentYear()"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ex: 2020"
+            />
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Step 3: Équipements -->
+    @if (currentStep === 3) {
+      <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-8 space-y-6">
+        <div class="flex items-center space-x-3 mb-6">
+          <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
+          <h2 class="text-2xl font-bold text-slate-900">Équipements et caractéristiques</h2>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-semibold text-slate-900 mb-4">Équipements</h3>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <label class="flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors
+              {{ propertyForm.get('has_parking')?.value ? 'border-blue-500 bg-blue-50' : 'border-slate-200' }}">
+              <input type="checkbox" formControlName="has_parking" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
+              <div>
+                <div class="text-lg mb-1">🚗</div>
+                <span class="font-medium text-slate-900">Parking</span>
+              </div>
+            </label>
+
+            <label class="flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors
+              {{ propertyForm.get('has_garden')?.value ? 'border-blue-500 bg-blue-50' : 'border-slate-200' }}">
+              <input type="checkbox" formControlName="has_garden" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
+              <div>
+                <div class="text-lg mb-1">🌳</div>
+                <span class="font-medium text-slate-900">Jardin</span>
+              </div>
+            </label>
+
+            <label class="flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors
+              {{ propertyForm.get('has_pool')?.value ? 'border-blue-500 bg-blue-50' : 'border-slate-200' }}">
+              <input type="checkbox" formControlName="has_pool" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
+              <div>
+                <div class="text-lg mb-1">🏊</div>
+                <span class="font-medium text-slate-900">Piscine</span>
+              </div>
+            </label>
+
+            <label class="flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors
+              {{ propertyForm.get('has_balcony')?.value ? 'border-blue-500 bg-blue-50' : 'border-slate-200' }}">
+              <input type="checkbox" formControlName="has_balcony" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
+              <div>
+                <div class="text-lg mb-1">🌆</div>
+                <span class="font-medium text-slate-900">Balcon</span>
+              </div>
+            </label>
+
+            <label class="flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors
+              {{ propertyForm.get('has_elevator')?.value ? 'border-blue-500 bg-blue-50' : 'border-slate-200' }}">
+              <input type="checkbox" formControlName="has_elevator" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
+              <div>
+                <div class="text-lg mb-1">🛗</div>
+                <span class="font-medium text-slate-900">Ascenseur</span>
+              </div>
+            </label>
+
+            <label class="flex items-center space-x-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors
+              {{ propertyForm.get('is_furnished')?.value ? 'border-blue-500 bg-blue-50' : 'border-slate-200' }}">
+              <input type="checkbox" formControlName="is_furnished" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
+              <div>
+                <div class="text-lg mb-1">🛋️</div>
+                <span class="font-medium text-slate-900">Meublé</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        @if (features.length > 0) {
+          <div>
+            <h3 class="text-lg font-semibold text-slate-900 mb-4">Caractéristiques supplémentaires</h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+              @for (feature of features; track feature.id) {
+                <button
+                  type="button"
+                  (click)="toggleFeature(feature.id)"
+                  class="p-3 text-left border-2 rounded-lg transition-all
+                    {{ isFeatureSelected(feature.id) ? 'border-blue-500 bg-blue-50 text-blue-900' : 'border-slate-200 hover:border-blue-300' }}"
+                >
+                  <span class="font-medium">{{ feature.name }}</span>
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Step 4: Adresse -->
+    @if (currentStep === 4) {
+      <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-8 space-y-6">
+        <div class="flex items-center space-x-3 mb-6">
+          <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">4</div>
+          <h2 class="text-2xl font-bold text-slate-900">Localisation</h2>
+        </div>
+
+        <div formGroupName="address" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="department_id" class="block text-sm font-semibold text-slate-700 mb-2">
+              Département <span class="text-red-500">*</span>
+            </label>
+            @if (departments.length === 0) {
+              <div class="w-full px-4 py-3 border border-slate-300 rounded-lg bg-slate-50 flex items-center">
+                <svg class="animate-spin h-5 w-5 text-slate-400 mr-2" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-slate-500 text-sm">Chargement des départements...</span>
+              </div>
+            } @else {
+              <select
+                id="department_id"
+                formControlName="department_id"
+                class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors
+                  {{ propertyForm.get('address.department_id')?.invalid && propertyForm.get('address.department_id')?.touched ? 'border-red-300 bg-red-50' : 'border-slate-300' }}"
+              >
+                <option value="">Sélectionnez un département</option>
+                @for (dept of departments; track dept.id) {
+                  <option [value]="dept.id">{{ dept.name }}</option>
+                }
+              </select>
+            }
+            @if (propertyForm.get('address.department_id')?.hasError('required') && propertyForm.get('address.department_id')?.touched) {
+              <p class="mt-2 text-sm text-red-600">Le département est requis</p>
+            }
+          </div>
+
+          <div>
+            <label for="commune_id" class="block text-sm font-semibold text-slate-700 mb-2">
+              Commune <span class="text-red-500">*</span>
+            </label>
+            <select
+              id="commune_id"
+              formControlName="commune_id"
+              [disabled]="!propertyForm.get('address.department_id')?.value"
+              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors
+                {{ propertyForm.get('address.commune_id')?.invalid && propertyForm.get('address.commune_id')?.touched ? 'border-red-300 bg-red-50' : 'border-slate-300' }}
+                {{ !propertyForm.get('address.department_id')?.value ? 'bg-slate-100 cursor-not-allowed' : '' }}"
+            >
+              <option value="">Sélectionnez une commune</option>
+              @for (commune of communes; track commune.id) {
+                <option [value]="commune.id">{{ commune.name }}</option>
+              }
+            </select>
+            @if (propertyForm.get('address.commune_id')?.hasError('required') && propertyForm.get('address.commune_id')?.touched) {
+              <p class="mt-2 text-sm text-red-600">La commune est requise</p>
+            }
+          </div>
+
+          <div>
+            <label for="arrondissement_id" class="block text-sm font-semibold text-slate-700 mb-2">Arrondissement</label>
+            <select
+              id="arrondissement_id"
+              formControlName="arrondissement_id"
+              [disabled]="!propertyForm.get('address.commune_id')?.value || arrondissements.length === 0"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                {{ !propertyForm.get('address.commune_id')?.value || arrondissements.length === 0 ? 'bg-slate-100 cursor-not-allowed' : '' }}"
+            >
+              <option value="">Sélectionnez un arrondissement</option>
+              @for (arr of arrondissements; track arr.id) {
+                <option [value]="arr.id">{{ arr.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label for="town_id" class="block text-sm font-semibold text-slate-700 mb-2">Ville/Quartier</label>
+            <select
+              id="town_id"
+              formControlName="town_id"
+              [disabled]="!propertyForm.get('address.commune_id')?.value || towns.length === 0"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                {{ !propertyForm.get('address.commune_id')?.value || towns.length === 0 ? 'bg-slate-100 cursor-not-allowed' : '' }}"
+            >
+              <option value="">Sélectionnez une ville/quartier</option>
+              @for (town of towns; track town.id) {
+                <option [value]="town.id">{{ town.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="street" class="block text-sm font-semibold text-slate-700 mb-2">Rue / Adresse complète</label>
+            <input
+              type="text"
+              id="street"
+              formControlName="street"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ex: Rue 123, Quartier Gbégamey"
+            />
+          </div>
+
+          <div>
+            <label for="postal_code" class="block text-sm font-semibold text-slate-700 mb-2">Code postal</label>
+            <input
+              type="text"
+              id="postal_code"
+              formControlName="postal_code"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ex: 01BP1234"
+            />
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Navigation Buttons -->
+    <div class="flex justify-between items-center mt-8">
+      <button
+        type="button"
+        (click)="previousStep()"
+        [disabled]="currentStep === 1"
+        class="px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-lg font-semibold hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Précédent
+      </button>
+
+      @if (currentStep < totalSteps) {
+        <button
+          type="button"
+          (click)="nextStep()"
+          [disabled]="!isStepValid()"
+          class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Suivant
+        </button>
+      } @else {
+        <div class="flex items-center gap-4">
+          <!-- Debug info (temporary) -->
+          <div class="text-xs text-slate-500">
+            <div>Form: {{ propertyForm.valid ? '✓' : '✗' }}</div>
+            <div>Custom: {{ isFormValid() ? '✓' : '✗' }}</div>
+          </div>
+          <button
+            type="submit"
+            [disabled]="!isFormValid() || loading"
+            class="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          >
+          @if (loading) {
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Modification en cours...
+          } @else {
+            Enregistrer les modifications
+          }
+        </button>
+        </div>
+      }
+    </div>
+  </form>
+  }
+</div>
+

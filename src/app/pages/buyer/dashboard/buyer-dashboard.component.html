@@ -1,0 +1,72 @@
+<div class="space-y-8">
+  <div>
+    <h1 class="text-4xl font-display font-bold text-gray-900 mb-2">Rechercher un bien</h1>
+    <p class="text-gray-600">Découvrez notre sélection de biens immobiliers au Bénin</p>
+  </div>
+  
+  <!-- Filters (à implémenter) -->
+  <div class="card">
+    <p class="text-gray-600">Filtres de recherche - À implémenter</p>
+  </div>
+  
+  @if (loading) {
+    <div class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+    </div>
+  } @else if (properties.length === 0) {
+    <div class="card text-center py-12">
+      <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <span class="text-5xl">🔍</span>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-900 mb-2">Aucun bien disponible</h3>
+      <p class="text-gray-600">Il n'y a pas encore de biens sur la plateforme</p>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (property of properties; track property.id) {
+        <a [routerLink]="['/properties', property.id]" class="card group block hover:shadow-large transition-all">
+          <div class="relative h-56 mb-4 rounded-lg overflow-hidden">
+            @if (property.images && property.images.length > 0) {
+              <img 
+                [src]="'http://localhost:8000/storage/' + property.images[0].file_path" 
+                [alt]="property.title"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+              />
+            } @else {
+              <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+                <span class="text-5xl text-gray-400">🏠</span>
+              </div>
+            }
+            @if (property.is_verified) {
+              <span class="absolute top-3 right-3 px-3 py-1 bg-green-500 text-white rounded-full text-xs font-semibold">
+                ✓ Vérifié
+              </span>
+            }
+          </div>
+          
+          <div class="space-y-2">
+            <h3 class="text-xl font-bold text-gray-900 line-clamp-2 group-hover:text-primary-600 transition-colors">
+              {{ property.title }}
+            </h3>
+            <p class="text-2xl font-bold text-primary-600">{{ property.price | number }} FCFA</p>
+            <div class="flex items-center text-sm text-gray-600 space-x-4">
+              <span>{{ property.surface_area }} m²</span>
+              <span>•</span>
+              <span>{{ property.rooms || 0 }} pièces</span>
+              @if (property.bedrooms) {
+                <span>•</span>
+                <span>{{ property.bedrooms }} chambres</span>
+              }
+            </div>
+            @if (property.address) {
+              <p class="text-sm text-gray-500 flex items-center mt-2">
+                <span class="mr-1">📍</span>
+                {{ property.address.commune?.name }}, {{ property.address.department?.name }}
+              </p>
+            }
+          </div>
+        </a>
+      }
+    </div>
+  }
+</div>

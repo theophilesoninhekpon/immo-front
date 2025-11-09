@@ -1,0 +1,976 @@
+<div class="max-w-7xl mx-auto py-8" (click)="closeActionMenu()">
+  @if (loading) {
+    <div class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+  } @else if (error) {
+    <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
+      <p class="text-red-800">{{ error }}</p>
+      <button 
+        (click)="goBack()"
+        class="mt-4 px-6 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-xl hover:from-red-600 hover:to-red-700 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
+      >
+        Retour
+      </button>
+    </div>
+  } @else if (property) {
+    <!-- Header -->
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <button 
+          (click)="goBack()"
+          class="flex items-center gap-2 px-4 py-2.5 text-slate-600 hover:text-slate-900 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 shadow-sm hover:shadow-md transition-all duration-200 font-medium"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Retour
+        </button>
+        
+        @if (isOwner || isAdmin) {
+          <div class="relative" (click)="$event.stopPropagation()">
+            <button 
+              (click)="toggleActionMenu($event)"
+              class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
+              title="Actions"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"></path>
+              </svg>
+            </button>
+            
+            @if (openActionMenu && menuPosition) {
+              <div 
+                class="fixed bg-white rounded-lg shadow-xl border border-slate-200 py-1 z-[9999] min-w-[180px]"
+                [style.top.px]="menuPosition.top"
+                [style.right.px]="menuPosition.right"
+                (click)="$event.stopPropagation()"
+              >
+                <button 
+                  (click)="handleAction('edit')"
+                  class="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                  Modifier
+                </button>
+                @if (isOwner) {
+                  <button 
+                    (click)="handleAction('delete')"
+                    class="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    Supprimer
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+      
+      <!-- Title with status badges -->
+      <div class="flex items-center gap-3 flex-wrap mb-6">
+        <h1 class="text-4xl font-display font-bold text-slate-900">{{ property.title }}</h1>
+        <span [class]="'px-3 py-1 rounded-full text-sm font-semibold ' + getStatusClass(property.status)">
+          {{ getStatusLabel(property.status) }}
+        </span>
+        @if (property.is_verified) {
+          <span class="px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">
+            ✓ Vérifié
+          </span>
+        }
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main Content -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Price and Description -->
+        <div>
+          <p class="text-2xl font-bold text-blue-600 mb-4">{{ formatPrice(property.price) }} FCFA</p>
+          <p class="text-slate-600 whitespace-pre-line">{{ property.description }}</p>
+        </div>
+
+        <!-- Characteristics -->
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+          <h2 class="text-2xl font-bold text-slate-900 mb-4">Caractéristiques</h2>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="text-center p-4 bg-slate-50 rounded-lg">
+              <div class="text-2xl font-bold text-blue-600">{{ property.surface_area }}</div>
+              <div class="text-sm text-slate-600">m²</div>
+            </div>
+            @if (property.rooms) {
+              <div class="text-center p-4 bg-slate-50 rounded-lg">
+                <div class="text-2xl font-bold text-blue-600">{{ property.rooms }}</div>
+                <div class="text-sm text-slate-600">Pièces</div>
+              </div>
+            }
+            @if (property.bedrooms) {
+              <div class="text-center p-4 bg-slate-50 rounded-lg">
+                <div class="text-2xl font-bold text-blue-600">{{ property.bedrooms }}</div>
+                <div class="text-sm text-slate-600">Chambres</div>
+              </div>
+            }
+            @if (property.bathrooms) {
+              <div class="text-center p-4 bg-slate-50 rounded-lg">
+                <div class="text-2xl font-bold text-blue-600">{{ property.bathrooms }}</div>
+                <div class="text-sm text-slate-600">Salles de bain</div>
+              </div>
+            }
+            @if (property.floors) {
+              <div class="text-center p-4 bg-slate-50 rounded-lg">
+                <div class="text-2xl font-bold text-blue-600">{{ property.floors }}</div>
+                <div class="text-sm text-slate-600">Étages</div>
+              </div>
+            }
+            @if (property.year_built) {
+              <div class="text-center p-4 bg-slate-50 rounded-lg">
+                <div class="text-2xl font-bold text-blue-600">{{ property.year_built }}</div>
+                <div class="text-sm text-slate-600">Année</div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Amenities -->
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+          <h2 class="text-2xl font-bold text-slate-900 mb-4">Équipements</h2>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            @if (property.has_parking) {
+              <div class="flex items-center text-slate-700">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Parking
+              </div>
+            }
+            @if (property.has_garden) {
+              <div class="flex items-center text-slate-700">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Jardin
+              </div>
+            }
+            @if (property.has_pool) {
+              <div class="flex items-center text-slate-700">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Piscine
+              </div>
+            }
+            @if (property.has_balcony) {
+              <div class="flex items-center text-slate-700">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Balcon
+              </div>
+            }
+            @if (property.has_elevator) {
+              <div class="flex items-center text-slate-700">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Ascenseur
+              </div>
+            }
+            @if (property.is_furnished) {
+              <div class="flex items-center text-slate-700">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Meublé
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Features -->
+        @if (property.features && property.features.length > 0) {
+          <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+            <h2 class="text-2xl font-bold text-slate-900 mb-4">Caractéristiques supplémentaires</h2>
+            <div class="flex flex-wrap gap-2">
+              @for (feature of property.features; track feature.id) {
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                  {{ feature.name }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Media Section -->
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-slate-900">Images et Documents</h2>
+            @if (isAdmin) {
+              @let mediaStatus = getMediaStatus();
+              <div class="flex items-center gap-3">
+                @if (mediaStatus.allVerified) {
+                  <span class="px-3 py-1.5 bg-green-100 text-green-800 rounded-lg text-sm font-semibold flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Tous les médias validés
+                  </span>
+                } @else {
+                  <div class="flex items-center gap-2 text-sm">
+                    @if (mediaStatus.pendingImages > 0) {
+                      <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded">
+                        {{ mediaStatus.pendingImages }} image(s) en attente
+                      </span>
+                    }
+                    @if (mediaStatus.pendingDocuments > 0) {
+                      <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded">
+                        {{ mediaStatus.pendingDocuments }} document(s) en attente
+                      </span>
+                    }
+                    @if (mediaStatus.rejectedImages > 0) {
+                      <span class="px-2 py-1 bg-red-100 text-red-800 rounded">
+                        {{ mediaStatus.rejectedImages }} image(s) rejetée(s)
+                      </span>
+                    }
+                    @if (mediaStatus.rejectedDocuments > 0) {
+                      <span class="px-2 py-1 bg-red-100 text-red-800 rounded">
+                        {{ mediaStatus.rejectedDocuments }} document(s) rejeté(s)
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+            
+            <!-- Images Section -->
+            <div class="mb-8">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-slate-900">Images</h3>
+                @if (isOwner || isAdmin) {
+                  <div class="flex items-center gap-3">
+                    <label for="main-image-input" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white text-sm font-semibold rounded-lg hover:from-purple-700 hover:to-purple-800 shadow-md hover:shadow-lg transition-all duration-200">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                      </svg>
+                      Image principale
+                    </label>
+                    <input type="file" id="main-image-input" (change)="onMainImageSelected($event)" accept="image/*" class="hidden">
+                    <label for="image-input" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all duration-200">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                      </svg>
+                      Autres images
+                    </label>
+                    <input type="file" id="image-input" (change)="onImagesSelected($event)" multiple accept="image/*" class="hidden">
+                  </div>
+                }
+              </div>
+
+              <!-- Formulaire image principale -->
+              @if (mainImagePreview) {
+                <div class="mb-6 p-4 bg-purple-50 rounded-xl border-2 border-purple-300">
+                  <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-sm font-semibold text-slate-900">Image principale</h4>
+                    <button 
+                      (click)="clearMainImage()"
+                      class="text-sm text-red-600 hover:text-red-700 font-medium"
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <img 
+                        [src]="mainImagePreview" 
+                        alt="Aperçu image principale"
+                        class="w-full h-48 object-cover rounded-lg border-2 border-purple-600"
+                      >
+                    </div>
+                    <div class="space-y-3">
+                      <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Texte alternatif (optionnel)</label>
+                        <input 
+                          type="text" 
+                          [(ngModel)]="mainImageAltText"
+                          placeholder="Description de l'image"
+                          class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        >
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Légende (optionnel)</label>
+                        <input 
+                          type="text" 
+                          [(ngModel)]="mainImageCaption"
+                          placeholder="Légende de l'image"
+                          class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        >
+                      </div>
+                    </div>
+                  </div>
+                  <button 
+                    (click)="uploadMainImage()"
+                    [disabled]="uploadingMainImage"
+                    class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-purple-800 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    @if (uploadingMainImage) {
+                      <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Upload en cours...</span>
+                    } @else {
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                      </svg>
+                      <span>Uploader l'image principale</span>
+                    }
+                  </button>
+                </div>
+              }
+
+              <!-- Preview des images sélectionnées -->
+              @if (selectedImagePreviews.length > 0) {
+                <div class="mb-6 p-4 bg-slate-50 rounded-xl border-2 border-dashed border-blue-300">
+                  <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-sm font-semibold text-slate-900">{{ selectedImagePreviews.length }} image(s) sélectionnée(s)</h4>
+                    <button 
+                      (click)="clearImageSelection()"
+                      class="text-sm text-red-600 hover:text-red-700 font-medium"
+                    >
+                      Tout annuler
+                    </button>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                    @for (preview of selectedImagePreviews; track $index) {
+                      <div class="p-3 bg-white rounded-lg border-2" [class.border-blue-600]="preview.isMain" [class.border-slate-300]="!preview.isMain">
+                        <div class="relative group mb-3">
+                          <img 
+                            [src]="preview.preview" 
+                            [alt]="preview.file.name"
+                            class="w-full h-40 object-cover rounded-lg"
+                          >
+                          @if (preview.isMain) {
+                            <span class="absolute top-2 left-2 px-2 py-1 bg-blue-600 text-white text-xs font-semibold rounded shadow-lg">
+                              Principale
+                            </span>
+                          }
+                          <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                            @if (!preview.isMain) {
+                              <button 
+                                (click)="toggleMainImage($index)"
+                                class="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                title="Définir comme principale"
+                              >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                              </button>
+                            }
+                            <button 
+                              (click)="removeSelectedImage($index)"
+                              class="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                              title="Retirer"
+                            >
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                        <div class="space-y-2">
+                          <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Texte alternatif (optionnel)</label>
+                            <input 
+                              type="text" 
+                              [(ngModel)]="preview.alt_text"
+                              placeholder="Description de l'image"
+                              class="w-full px-2 py-1 text-sm border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                          </div>
+                          <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Légende (optionnel)</label>
+                            <input 
+                              type="text" 
+                              [(ngModel)]="preview.caption"
+                              placeholder="Légende de l'image"
+                              class="w-full px-2 py-1 text-sm border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                  <button 
+                    (click)="uploadImages()"
+                    [disabled]="uploadingImages || selectedImagePreviews.length === 0"
+                    class="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-lg hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    @if (uploadingImages) {
+                      <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Upload en cours...</span>
+                    } @else {
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                      </svg>
+                      <span>Uploader {{ selectedImagePreviews.length }} image(s)</span>
+                    }
+                  </button>
+                </div>
+              }
+              
+              @if (images.length === 0) {
+                <p class="text-slate-500 text-sm">Aucune image pour ce bien</p>
+              } @else {
+                @if (getMainImage()) {
+                  <!-- Image principale - grande -->
+                  <div class="mb-6">
+                    <div class="relative rounded-xl overflow-hidden border-2 border-blue-600 shadow-lg">
+                      <img 
+                        [src]="getImageUrl(getMainImage()!)" 
+                        [alt]="getMainImage()!.alt_text || getMainImage()!.name"
+                        class="w-full h-96 object-cover"
+                      >
+                      <span class="absolute top-4 left-4 px-3 py-1 bg-blue-600 text-white text-sm font-semibold rounded-lg shadow-lg z-10">
+                        Image principale
+                      </span>
+                      @if (isOwner || isAdmin) {
+                        <div class="absolute top-4 right-4 flex gap-2 z-20">
+                          @if (isAdmin && !getMainImage()!.is_verified) {
+                            <button 
+                              (click)="verifyImage(getMainImage()!.id)"
+                              [disabled]="verifyingImageId === getMainImage()!.id"
+                              class="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-lg transition-all disabled:opacity-50"
+                              title="Vérifier"
+                            >
+                              @if (verifyingImageId === getMainImage()!.id) {
+                                <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                              } @else {
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                              }
+                            </button>
+                            <button 
+                              (click)="rejectImagePrompt(getMainImage()!.id)"
+                              class="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-lg transition-all"
+                              title="Rejeter"
+                            >
+                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                              </svg>
+                            </button>
+                          }
+                          <button 
+                            (click)="previewImageModal(getMainImage()!)"
+                            class="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-lg transition-all"
+                            title="Prévisualiser"
+                          >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                          </button>
+                          <a 
+                            [href]="getImageUrl(getMainImage()!)" 
+                            [download]="getMainImage()!.name"
+                            class="p-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 shadow-lg transition-all"
+                            title="Télécharger"
+                            (click)="$event.stopPropagation()"
+                          >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                          </a>
+                          <button 
+                            (click)="deleteImage(getMainImage()!.id)"
+                            class="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-lg transition-all"
+                            title="Supprimer"
+                          >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                          </button>
+                        </div>
+                      }
+                      <!-- Détails de l'image principale -->
+                      @if (getMainImage()!.alt_text || getMainImage()!.caption) {
+                        <div class="absolute bottom-4 left-4 right-4 bg-black bg-opacity-75 text-white p-3 rounded-lg z-10">
+                          @if (getMainImage()!.alt_text) {
+                            <p class="text-sm font-semibold mb-1">{{ getMainImage()!.alt_text }}</p>
+                          }
+                          @if (getMainImage()!.caption) {
+                            <p class="text-xs opacity-90">{{ getMainImage()!.caption }}</p>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+                
+                <!-- Autres images -->
+                @if (getOtherImages().length > 0) {
+                  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    @for (image of getOtherImages(); track image.id) {
+                      <div class="relative bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                        <div class="relative">
+                          <img 
+                            [src]="getImageUrl(image)" 
+                            [alt]="image.alt_text || image.name"
+                            class="w-full h-48 object-cover"
+                          >
+                          @if (isOwner || isAdmin) {
+                            <div class="absolute top-2 right-2 flex gap-1">
+                              @if (isAdmin && !image.is_verified) {
+                                <button 
+                                  (click)="verifyImage(image.id)"
+                                  [disabled]="verifyingImageId === image.id"
+                                  class="p-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-lg transition-all disabled:opacity-50"
+                                  title="Vérifier"
+                                >
+                                  @if (verifyingImageId === image.id) {
+                                    <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                  } @else {
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                  }
+                                </button>
+                                <button 
+                                  (click)="rejectImagePrompt(image.id)"
+                                  class="p-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-lg transition-all"
+                                  title="Rejeter"
+                                >
+                                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                  </svg>
+                                </button>
+                              }
+                              <button 
+                                (click)="previewImageModal(image)"
+                                class="p-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-lg transition-all"
+                                title="Prévisualiser"
+                              >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                              </button>
+                              <a 
+                                [href]="getImageUrl(image)" 
+                                [download]="image.name"
+                                class="p-1.5 bg-slate-600 text-white rounded-lg hover:bg-slate-700 shadow-lg transition-all"
+                                title="Télécharger"
+                                (click)="$event.stopPropagation()"
+                              >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                </svg>
+                              </a>
+                              <button 
+                                (click)="deleteImage(image.id)"
+                                class="p-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-lg transition-all"
+                                title="Supprimer"
+                              >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                              </button>
+                            </div>
+                          }
+                          <!-- Détails de l'image -->
+                          @if (image.alt_text || image.caption) {
+                            <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-75 text-white p-2 rounded-b-lg">
+                              @if (image.alt_text) {
+                                <p class="text-xs font-semibold mb-0.5 truncate">{{ image.alt_text }}</p>
+                              }
+                              @if (image.caption) {
+                                <p class="text-xs opacity-90 truncate">{{ image.caption }}</p>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              }
+              
+              <!-- Modal de prévisualisation d'image -->
+              @if (previewImage !== null) {
+                <div class="fixed inset-0 bg-slate-900 bg-opacity-10 backdrop-blur-[1px] flex items-center justify-center z-50 p-4" (click)="closePreviewModal()">
+                  <div class="relative bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden" (click)="$event.stopPropagation()">
+                    <div class="relative h-full flex flex-col">
+                      <div class="absolute top-4 right-4 z-10 flex gap-2">
+                        <a 
+                          [href]="getImageUrl(previewImage)" 
+                          [download]="previewImage.name"
+                          class="p-2 bg-white bg-opacity-90 hover:bg-opacity-100 text-slate-700 rounded-lg shadow-lg transition-all"
+                          title="Télécharger"
+                          (click)="$event.stopPropagation()"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                          </svg>
+                        </a>
+                        <button 
+                          (click)="closePreviewModal()"
+                          class="p-2 bg-white bg-opacity-90 hover:bg-opacity-100 text-slate-700 rounded-lg shadow-lg transition-all"
+                          title="Fermer"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                          </svg>
+                        </button>
+                      </div>
+                      <div class="flex-1 overflow-auto p-4 flex items-center justify-center bg-slate-50">
+                        <img 
+                          [src]="getImageUrl(previewImage)" 
+                          [alt]="previewImage.alt_text || previewImage.name"
+                          class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
+                        >
+                      </div>
+                      @if (previewImage.alt_text || previewImage.caption) {
+                        <div class="bg-white border-t border-slate-200 p-4">
+                          @if (previewImage.alt_text) {
+                            <p class="text-lg font-semibold text-slate-900 mb-1">{{ previewImage.alt_text }}</p>
+                          }
+                          @if (previewImage.caption) {
+                            <p class="text-sm text-slate-600">{{ previewImage.caption }}</p>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- Modal de rejet d'image -->
+              @if (isAdmin && rejectingImageId !== null) {
+                <div class="fixed inset-0 bg-slate-900 bg-opacity-10 backdrop-blur-[1px] flex items-center justify-center z-50 p-4" (click)="cancelRejectImage()">
+                  <div class="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full" (click)="$event.stopPropagation()">
+                    <h3 class="text-lg font-semibold text-slate-900 mb-4">Rejeter l'image</h3>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Raison du rejet <span class="text-red-500">*</span></label>
+                    <textarea 
+                      [(ngModel)]="imageRejectionReason"
+                      rows="4"
+                      class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 mb-4"
+                      placeholder="Expliquez pourquoi cette image est rejetée..."
+                    ></textarea>
+                    <div class="flex gap-2">
+                      <button 
+                        (click)="confirmRejectImage(rejectingImageId!)"
+                        [disabled]="!imageRejectionReason.trim()"
+                        class="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Confirmer le rejet
+                      </button>
+                      <button 
+                        (click)="cancelRejectImage()"
+                        class="flex-1 px-4 py-2 bg-slate-300 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-400"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Documents Section -->
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-slate-900">Documents</h3>
+                @if (isOwner || isAdmin) {
+                  <button 
+                    (click)="addDocumentForm()"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all duration-200"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Ajouter un document
+                  </button>
+                }
+              </div>
+
+              <!-- Formulaires de documents -->
+              @if (documentForms.length > 0) {
+                <div class="mb-6 space-y-4">
+                  @for (form of documentForms; track $index) {
+                    <div class="p-4 bg-slate-50 rounded-xl border-2 border-dashed border-blue-300">
+                      <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-sm font-semibold text-slate-900">Document {{ $index + 1 }}</h4>
+                        <button 
+                          (click)="removeDocumentForm($index)"
+                          class="text-sm text-red-600 hover:text-red-700 font-medium"
+                        >
+                          Retirer
+                        </button>
+                      </div>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label class="block text-sm font-medium text-slate-700 mb-1">Fichier <span class="text-red-500">*</span></label>
+                          <label 
+                            [for]="'document-file-' + $index"
+                            class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 w-full border-2 border-dashed border-slate-300 rounded-lg hover:border-blue-500 transition-colors"
+                          >
+                            <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <span class="text-sm text-slate-600">
+                              @if (form.file) {
+                                {{ form.file.name }}
+                              } @else {
+                                Sélectionner un fichier
+                              }
+                            </span>
+                          </label>
+                          <input 
+                            [id]="'document-file-' + $index"
+                            type="file" 
+                            (change)="onDocumentFileSelected($event, $index)" 
+                            accept=".pdf,.doc,.docx" 
+                            class="hidden"
+                          >
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-slate-700 mb-1">Type de document <span class="text-red-500">*</span></label>
+                          <select 
+                            [(ngModel)]="form.document_type_id"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            <option value="">Sélectionner un type</option>
+                            @for (type of documentTypes; track type.id) {
+                              <option [value]="type.id">{{ type.name }}</option>
+                            }
+                          </select>
+                        </div>
+                        <div class="md:col-span-2">
+                          <label class="block text-sm font-medium text-slate-700 mb-1">Nom du document <span class="text-red-500">*</span></label>
+                          <input 
+                            type="text" 
+                            [(ngModel)]="form.name"
+                            placeholder="Nom du document"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          >
+                        </div>
+                        <div class="md:col-span-2">
+                          <label class="block text-sm font-medium text-slate-700 mb-1">Description (optionnel)</label>
+                          <textarea 
+                            [(ngModel)]="form.description"
+                            placeholder="Description du document"
+                            rows="2"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          ></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                  <button 
+                    (click)="uploadDocuments()"
+                    [disabled]="uploadingDocuments || documentForms.length === 0"
+                    class="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-lg hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    @if (uploadingDocuments) {
+                      <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Upload en cours...</span>
+                    } @else {
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                      </svg>
+                      <span>Uploader {{ documentForms.length }} document(s)</span>
+                    }
+                  </button>
+                </div>
+              }
+              
+              @if (documents.length === 0) {
+                <p class="text-slate-500 text-sm">Aucun document pour ce bien</p>
+              } @else {
+                <div class="space-y-2">
+                  @for (document of documents; track document.id) {
+                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
+                      <div class="flex items-center gap-3 flex-1">
+                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                        <div class="flex-1">
+                          <p class="font-semibold text-slate-900">{{ document.name }}</p>
+                          <p class="text-sm text-slate-600">{{ formatFileSize(document.file_size) }}</p>
+                          @if (document.status) {
+                            <span [class]="'inline-block mt-1 px-2 py-0.5 rounded text-xs font-semibold ' + 
+                              (document.status === 'verified' ? 'bg-green-100 text-green-800' : 
+                               document.status === 'rejected' ? 'bg-red-100 text-red-800' : 
+                               'bg-yellow-100 text-yellow-800')">
+                              {{ document.status === 'verified' ? '✓ Vérifié' : document.status === 'rejected' ? '✗ Rejeté' : '⏳ En attente' }}
+                            </span>
+                          }
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <a 
+                          [href]="getDocumentUrl(document)" 
+                          target="_blank"
+                          class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                          title="Télécharger"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                          </svg>
+                        </a>
+                        @if (isAdmin && document.status === 'pending') {
+                          <button 
+                            (click)="verifyDocument(document.id)"
+                            [disabled]="verifyingDocumentId === document.id"
+                            class="p-2 text-green-600 hover:bg-green-50 rounded-lg disabled:opacity-50"
+                            title="Vérifier"
+                          >
+                            @if (verifyingDocumentId === document.id) {
+                              <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                            } @else {
+                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                              </svg>
+                            }
+                          </button>
+                          <button 
+                            (click)="rejectDocumentPrompt(document.id)"
+                            class="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                            title="Rejeter"
+                          >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                          </button>
+                        }
+                        @if (isOwner || isAdmin) {
+                          <button 
+                            (click)="deleteDocument(document.id)"
+                            class="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                            title="Supprimer"
+                          >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                    @if (isAdmin && rejectingDocumentId === document.id) {
+                      <div class="mt-2 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <label class="block text-sm font-semibold text-red-900 mb-2">Raison du rejet</label>
+                        <textarea 
+                          [(ngModel)]="rejectionReason"
+                          rows="3"
+                          class="w-full px-3 py-2 border border-red-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                          placeholder="Expliquez pourquoi ce document est rejeté..."
+                        ></textarea>
+                        <div class="flex gap-2 mt-3">
+                          <button 
+                            (click)="confirmRejectDocument(document.id)"
+                            class="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700"
+                          >
+                            Confirmer le rejet
+                          </button>
+                          <button 
+                            (click)="cancelReject()"
+                            class="px-4 py-2 bg-slate-300 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-400"
+                          >
+                            Annuler
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  }
+                </div>
+              }
+            </div>
+          </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Property Info -->
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+          <h3 class="text-xl font-bold text-slate-900 mb-4">Informations</h3>
+          <div class="space-y-3">
+            <div>
+              <span class="text-sm text-slate-600">Type</span>
+              <p class="font-semibold text-slate-900">{{ property.property_type?.name || 'N/A' }}</p>
+            </div>
+            <div>
+              <span class="text-sm text-slate-600">Référence</span>
+              <p class="font-semibold text-slate-900">{{ property.reference }}</p>
+            </div>
+            <div>
+              <span class="text-sm text-slate-600">Statut</span>
+              <p class="font-semibold text-slate-900">{{ getStatusLabel(property.status) }}</p>
+            </div>
+            @if (property.created_at) {
+              <div>
+                <span class="text-sm text-slate-600">Créé le</span>
+                <p class="font-semibold text-slate-900">{{ property.created_at | date:'dd/MM/yyyy' }}</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Address -->
+        @if (property.address) {
+          <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+            <h3 class="text-xl font-bold text-slate-900 mb-4">Localisation</h3>
+            <div class="space-y-2 text-slate-700">
+              @if (property.address.street) {
+                <p>{{ property.address.street }}</p>
+              }
+              @if (property.address.town) {
+                <p>{{ property.address.town.name }}</p>
+              }
+              @if (property.address.commune) {
+                <p>{{ property.address.commune.name }}</p>
+              }
+              @if (property.address.department) {
+                <p>{{ property.address.department.name }}</p>
+              }
+              @if (property.address.postal_code) {
+                <p>Code postal: {{ property.address.postal_code }}</p>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Owner Info -->
+        @if (property.owner && (isOwner || isAdmin)) {
+          <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+            <h3 class="text-xl font-bold text-slate-900 mb-4">Propriétaire</h3>
+            <div class="space-y-2">
+              <p class="font-semibold text-slate-900">{{ property.owner.name }}</p>
+              <p class="text-sm text-slate-600">{{ property.owner.email }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+

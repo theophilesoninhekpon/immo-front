@@ -31,7 +31,8 @@
             ],
             "styles": [
               "src/styles.sass"
-            ]
+            ],
+            "externalDependencies": []
           },
           "configurations": {
             "production": {
@@ -94,5 +95,6 @@
         }
       }
     }
+
   }
 }

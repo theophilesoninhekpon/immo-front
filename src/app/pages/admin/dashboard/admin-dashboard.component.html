@@ -1,0 +1,105 @@
+<div class="space-y-8">
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-4xl font-display font-bold text-gray-900">Dashboard Administrateur</h1>
+      <p class="text-gray-600 mt-2">Vue d'ensemble de la plateforme</p>
+    </div>
+  </div>
+  
+  @if (loading) {
+    <div class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+    </div>
+  } @else {
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="card">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 uppercase tracking-wide">Total Utilisateurs</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total_users || 0 }}</p>
+          </div>
+          <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+            <span class="text-2xl">👥</span>
+          </div>
+        </div>
+        <a routerLink="/admin/users" class="mt-4 inline-block text-sm font-semibold text-primary-600 hover:text-primary-700">
+          Voir tous →
+        </a>
+      </div>
+      
+      <div class="card">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 uppercase tracking-wide">Vendeurs</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total_sellers || 0 }}</p>
+            <div class="mt-2 space-y-1">
+              <p class="text-xs text-green-600">✓ Vérifiés: {{ stats.verified_sellers || 0 }}</p>
+              <p class="text-xs text-yellow-600">⏳ En attente: {{ stats.pending_sellers || 0 }}</p>
+            </div>
+          </div>
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <span class="text-2xl">🏪</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 uppercase tracking-wide">Acheteurs</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total_buyers || 0 }}</p>
+          </div>
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <span class="text-2xl">🔍</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 uppercase tracking-wide">Biens</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">-</p>
+          </div>
+          <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            <span class="text-2xl">🏠</span>
+          </div>
+        </div>
+        <a routerLink="/admin/properties" class="mt-4 inline-block text-sm font-semibold text-primary-600 hover:text-primary-700">
+          Gérer →
+        </a>
+      </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="mt-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">Actions rapides</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <a routerLink="/admin/users/pending" class="card group hover:shadow-large cursor-pointer">
+          <div class="flex items-center space-x-4">
+            <div class="w-16 h-16 bg-yellow-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span class="text-3xl">⏳</span>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-gray-900 mb-1">Vendeurs en attente</h3>
+              <p class="text-gray-600">{{ stats.pending_sellers || 0 }} vendeur(s) en attente de validation</p>
+            </div>
+          </div>
+        </a>
+        
+        <a routerLink="/admin/properties" class="card group hover:shadow-large cursor-pointer">
+          <div class="flex items-center space-x-4">
+            <div class="w-16 h-16 bg-primary-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span class="text-3xl">📋</span>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-gray-900 mb-1">Gérer les biens</h3>
+              <p class="text-gray-600">Valider et gérer tous les biens</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  }
+</div>

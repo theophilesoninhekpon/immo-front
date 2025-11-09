@@ -1,0 +1,431 @@
+<div class="space-y-6">
+  <!-- Header Section -->
+  <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 pb-6 border-b border-slate-200">
+    <div>
+      <h1 class="text-4xl font-display font-bold text-slate-900 mb-2">Gestion des biens immobiliers</h1>
+      <p class="text-slate-600 text-base">Valider et gérer tous les biens de la plateforme</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <!-- View Mode Toggle -->
+      <div class="flex items-center bg-slate-50 rounded-xl p-1.5 border border-slate-200 shadow-sm">
+        <button
+          (click)="viewMode = 'table'"
+          [class]="'px-4 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2 ' + (viewMode === 'table' ? 'bg-white text-blue-600 shadow-md font-medium' : 'text-slate-600 hover:text-slate-900')"
+          title="Vue tableau"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+          </svg>
+          <span class="hidden sm:inline">Tableau</span>
+        </button>
+        <button
+          (click)="viewMode = 'grid'"
+          [class]="'px-4 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2 ' + (viewMode === 'grid' ? 'bg-white text-blue-600 shadow-md font-medium' : 'text-slate-600 hover:text-slate-900')"
+          title="Vue grille"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+          </svg>
+          <span class="hidden sm:inline">Grille</span>
+        </button>
+      </div>
+      <a 
+        [routerLink]="['/admin/properties/new']"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-blue-700 hover:via-blue-700 hover:to-blue-800 transform hover:-translate-y-0.5 transition-all duration-200 cursor-pointer no-underline group"
+      >
+        <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        <span>Créer un bien</span>
+      </a>
+    </div>
+  </div>
+
+  @if (viewMode === 'table') {
+    <!-- Table View with Integrated Filters -->
+    <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-visible">
+      <!-- Filters Section -->
+      <div class="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200 p-6">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+            </svg>
+            Filtres de recherche
+          </h2>
+          <button 
+            (click)="resetFilters()"
+            class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200 flex items-center gap-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Réinitialiser
+          </button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="lg:col-span-2">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Recherche</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+              <input 
+                type="text" 
+                [(ngModel)]="filters.search"
+                (keyup.enter)="loadProperties()"
+                placeholder="Titre, référence, adresse..."
+                class="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+              />
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Statut</label>
+            <select 
+              [(ngModel)]="filters.status"
+              (change)="loadProperties()"
+              class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white appearance-none cursor-pointer"
+            >
+              <option value="">Tous les statuts</option>
+              <option value="available">Disponible</option>
+              <option value="pending_verification">En attente</option>
+              <option value="sold">Vendu</option>
+              <option value="rejected">Rejeté</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Vérification</label>
+            <select 
+              [(ngModel)]="filters.is_verified"
+              (change)="loadProperties()"
+              class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white appearance-none cursor-pointer"
+            >
+              <option value="">Tous</option>
+              <option value="true">Vérifiés</option>
+              <option value="false">Non vérifiés</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Prix min (FCFA)</label>
+            <input 
+              type="number" 
+              [(ngModel)]="filters.min_price"
+              (keyup.enter)="loadProperties()"
+              placeholder="0"
+              class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Prix max (FCFA)</label>
+            <input 
+              type="number" 
+              [(ngModel)]="filters.max_price"
+              (keyup.enter)="loadProperties()"
+              placeholder="∞"
+              class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+            />
+          </div>
+          <div class="flex items-end">
+            <button 
+              (click)="loadProperties()"
+              class="w-full px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg hover:from-blue-700 hover:to-blue-800 transform hover:-translate-y-0.5 transition-all duration-200"
+            >
+              Appliquer
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table Content -->
+      @if (loading) {
+        <div class="flex justify-center items-center py-16">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      } @else if (properties.length === 0) {
+        <div class="bg-white p-12 text-center">
+          <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span class="text-5xl">🏠</span>
+          </div>
+          <h3 class="text-2xl font-display font-bold text-slate-900 mb-2">Aucun bien trouvé</h3>
+          <p class="text-slate-600">Aucun bien ne correspond aux critères de recherche</p>
+        </div>
+      } @else {
+        <div class="overflow-x-auto overflow-y-visible">
+          <table class="w-full">
+            <thead class="bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Bien</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Prix</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Vendeur</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Statut</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Vérification</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              @for (property of properties; track property.id) {
+                <tr class="hover:bg-blue-50/50 transition-colors duration-150">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center space-x-4">
+                      @if (property.images && property.images.length > 0) {
+                        <img 
+                          [src]="'http://localhost:8000/storage/' + property.images[0].file_path" 
+                          [alt]="property.title"
+                          class="w-16 h-16 object-cover rounded-xl shadow-sm"
+                        />
+                      } @else {
+                        <div class="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center shadow-sm">
+                          <span class="text-2xl">🏠</span>
+                        </div>
+                      }
+                      <div>
+                        <div class="font-semibold text-slate-900 mb-1">{{ property.title }}</div>
+                        <div class="text-sm text-slate-500">
+                          {{ property.surface_area }} m² • {{ property.rooms || 0 }} pièces
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="font-bold text-blue-600 text-lg">{{ property.price | number }} FCFA</div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="text-sm font-medium text-slate-900">
+                      {{ property.owner?.first_name || property.owner?.name || 'N/A' }} {{ property.owner?.name || '' }}
+                    </div>
+                    <div class="text-xs text-slate-500">{{ property.owner?.email || 'N/A' }}</div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span [class]="'px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm ' + getStatusClass(property.status)">
+                      {{ getStatusLabel(property.status) }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span [class]="'px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm ' + getVerificationStatusClass(property.is_verified)">
+                      {{ property.is_verified ? '✓ Vérifié' : '⏳ En attente' }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 relative">
+                    <div class="relative menu-container">
+                      <button 
+                        (click)="toggleMenu(property.id, $event)"
+                        class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors duration-200"
+                        title="Actions"
+                      >
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"></path>
+                        </svg>
+                      </button>
+                      
+                      @if (openMenuId === property.id && menuPosition) {
+                        <div 
+                          class="fixed w-56 bg-white rounded-xl shadow-2xl border border-slate-200 z-[9999] py-2 max-h-[80vh] overflow-y-auto"
+                          [style.top.px]="menuPosition.top"
+                          [style.right.px]="menuPosition.right"
+                          [style.max-height.px]="getMaxMenuHeight()"
+                        >
+                          <button 
+                            (click)="handleAction('view', property.id)"
+                            class="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors duration-150 flex items-center gap-3"
+                          >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            Voir les détails
+                          </button>
+                          <button 
+                            (click)="handleAction('edit', property.id)"
+                            class="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors duration-150 flex items-center gap-3"
+                          >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Modifier
+                          </button>
+                          @if (!property.is_verified) {
+                            <div class="border-t border-slate-100 my-1"></div>
+                            <button 
+                              (click)="handleAction('verify', property.id)"
+                              class="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors duration-150 flex items-center gap-3"
+                            >
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                              </svg>
+                              Valider
+                            </button>
+                            <button 
+                              (click)="handleAction('reject', property.id)"
+                              class="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors duration-150 flex items-center gap-3"
+                            >
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                              </svg>
+                              Rejeter
+                            </button>
+                          }
+                          <div class="border-t border-slate-100 my-1"></div>
+                          <button 
+                            (click)="handleAction('delete', property.id)"
+                            [disabled]="deletingId === property.id"
+                            class="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors duration-150 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            @if (deletingId === property.id) {
+                              <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                            } @else {
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                              </svg>
+                            }
+                            Supprimer
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Grid View -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (property of properties; track property.id) {
+        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden group hover:shadow-2xl transition-all duration-300">
+          @if (property.images && property.images.length > 0) {
+            <div class="relative h-56 mb-4 overflow-hidden">
+              <img 
+                [src]="'http://localhost:8000/storage/' + property.images[0].file_path" 
+                [alt]="property.title"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div class="absolute top-3 right-3 flex flex-col gap-2">
+                <span [class]="'px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm ' + getStatusClass(property.status)">
+                  {{ getStatusLabel(property.status) }}
+                </span>
+                <span [class]="'px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm ' + getVerificationStatusClass(property.is_verified)">
+                  {{ property.is_verified ? '✓ Vérifié' : '⏳ En attente' }}
+                </span>
+              </div>
+            </div>
+          } @else {
+            <div class="h-56 mb-4 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center">
+              <span class="text-6xl">🏠</span>
+            </div>
+          }
+          
+          <div class="p-6">
+            <h3 class="text-xl font-display font-bold text-slate-900 mb-2 line-clamp-2">{{ property.title }}</h3>
+            <p class="text-2xl font-bold text-blue-600 mb-4">{{ property.price | number }} FCFA</p>
+            <div class="flex items-center text-sm text-slate-600 mb-4 space-x-4">
+              <span class="flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                </svg>
+                {{ property.surface_area }} m²
+              </span>
+              <span>•</span>
+              <span>{{ property.rooms || 0 }} pièces</span>
+            </div>
+            
+            @if (property.owner) {
+              <div class="mb-4 pb-4 border-b border-slate-100">
+                <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Vendeur</p>
+                <p class="font-semibold text-slate-900">{{ property.owner?.first_name || property.owner?.name || 'N/A' }} {{ property.owner?.name || '' }}</p>
+                <p class="text-xs text-slate-500">{{ property.owner?.email || 'N/A' }}</p>
+              </div>
+            }
+            
+            <div class="flex items-center justify-between">
+              <button 
+                (click)="viewProperty(property.id)"
+                class="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 mr-2"
+              >
+                Voir
+              </button>
+              <div class="relative menu-container">
+                <button 
+                  (click)="toggleMenu(property.id, $event)"
+                  class="p-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors duration-200"
+                  title="Plus d'actions"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"></path>
+                  </svg>
+                </button>
+                
+                @if (openMenuId === property.id && menuPosition) {
+                  <div 
+                    class="fixed w-56 bg-white rounded-xl shadow-2xl border border-slate-200 z-[9999] py-2 max-h-[80vh] overflow-y-auto"
+                    [style.top.px]="menuPosition.top"
+                    [style.right.px]="menuPosition.right"
+                    [style.max-height.px]="getMaxMenuHeight()"
+                  >
+                    <button 
+                      (click)="handleAction('edit', property.id)"
+                      class="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors duration-150 flex items-center gap-3"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                      Modifier
+                    </button>
+                    @if (!property.is_verified) {
+                      <div class="border-t border-slate-100 my-1"></div>
+                      <button 
+                        (click)="handleAction('verify', property.id)"
+                        class="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors duration-150 flex items-center gap-3"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Valider
+                      </button>
+                      <button 
+                        (click)="handleAction('reject', property.id)"
+                        class="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors duration-150 flex items-center gap-3"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Rejeter
+                      </button>
+                    }
+                    <div class="border-t border-slate-100 my-1"></div>
+                    <button 
+                      (click)="handleAction('delete', property.id)"
+                      [disabled]="deletingId === property.id"
+                      class="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors duration-150 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      @if (deletingId === property.id) {
+                        <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      } @else {
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                      }
+                      Supprimer
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
