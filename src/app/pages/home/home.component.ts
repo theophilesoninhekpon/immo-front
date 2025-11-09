@@ -65,10 +65,23 @@ export class HomeComponent implements OnInit {
   }
 
   getPropertyImageUrl(property: any): string {
-    if (property.images && property.images.length > 0) {
+    if (!property.images || property.images.length === 0) {
+      return '';
+    }
+    
+    // Chercher l'image principale (is_main === true)
+    const mainImage = property.images.find((img: any) => img.is_main === true);
+    if (mainImage && mainImage.file_path) {
+      const baseUrl = environment.apiUrl.replace('/api', '');
+      return `${baseUrl}/storage/${mainImage.file_path}`;
+    }
+    
+    // Si pas d'image principale, utiliser la première image
+    if (property.images[0] && property.images[0].file_path) {
       const baseUrl = environment.apiUrl.replace('/api', '');
       return `${baseUrl}/storage/${property.images[0].file_path}`;
     }
+    
     return '';
   }
 

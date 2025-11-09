@@ -285,9 +285,27 @@ export class PropertyDetailComponent implements OnInit {
   uploadMainImage(): void {
     if (!this.mainImageFile || !this.property) return;
 
+    // Vérifier s'il existe déjà une image principale
+    const existingMainImage = this.images.find(img => img.is_main === true);
+    
+    if (existingMainImage) {
+      const confirmReplace = confirm(
+        '⚠️ Il existe déjà une image principale pour ce bien. ' +
+        'La nouvelle image remplacera l\'ancienne comme image principale. ' +
+        'Voulez-vous continuer ?'
+      );
+      
+      if (!confirmReplace) {
+        return;
+      }
+    }
+
     this.uploadingMainImage = true;
+    
+    // S'assurer que toutes les autres images perdent leur statut principal
+    // Le backend s'en chargera, mais on peut aussi le faire côté frontend pour plus de sécurité
     const metadata = [{
-      is_main: true,
+      is_main: true, // Cette image sera la seule principale
       sort_order: 0,
       alt_text: this.mainImageAltText || undefined,
       caption: this.mainImageCaption || undefined
@@ -303,6 +321,13 @@ export class PropertyDetailComponent implements OnInit {
           this.mainImageCaption = '';
           const fileInput = document.getElementById('main-image-input') as HTMLInputElement;
           if (fileInput) fileInput.value = '';
+          
+          // Confirmer que l'image principale a été ajoutée
+          if (existingMainImage) {
+            setTimeout(() => {
+              alert('✓ Nouvelle image principale ajoutée avec succès. L\'ancienne image principale a perdu son statut.');
+            }, 500);
+          }
         }
         this.uploadingMainImage = false;
       },
@@ -403,12 +428,31 @@ export class PropertyDetailComponent implements OnInit {
   }
 
   deleteImage(imageId: number): void {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette image ?')) return;
+    // Vérifier si c'est l'image principale
+    const imageToDelete = this.images.find(img => img.id === imageId);
+    const isMainImage = imageToDelete?.is_main === true;
+    
+    let confirmMessage = 'Êtes-vous sûr de vouloir supprimer cette image ?';
+    if (isMainImage) {
+      confirmMessage = '⚠️ Vous êtes sur le point de supprimer l\'image principale. ' +
+        'Il est recommandé d\'ajouter une nouvelle image principale après la suppression. ' +
+        'Voulez-vous continuer ?';
+    }
+    
+    if (!confirm(confirmMessage)) return;
 
     this.mediaService.deleteImage(this.property.id, imageId).subscribe({
       next: (response) => {
         if (response.success) {
           this.loadMedia(this.property.id);
+          
+          // Si c'était l'image principale, rappeler à l'utilisateur d'en ajouter une nouvelle
+          if (isMainImage) {
+            setTimeout(() => {
+              alert('⚠️ L\'image principale a été supprimée. ' +
+                'Veuillez ajouter une nouvelle image principale pour ce bien.');
+            }, 500);
+          }
         }
       },
       error: (err) => {
@@ -418,10 +462,32 @@ export class PropertyDetailComponent implements OnInit {
   }
 
   setMainImage(imageId: number): void {
+    // Vérifier s'il existe déjà une image principale différente
+    const existingMainImage = this.images.find(img => img.is_main === true && img.id !== imageId);
+    const targetImage = this.images.find(img => img.id === imageId);
+    
+    if (existingMainImage && targetImage) {
+      const confirmReplace = confirm(
+        `⚠️ Il existe déjà une image principale pour ce bien. ` +
+        `L'image "${targetImage.name || 'sélectionnée'}" remplacera l'ancienne comme image principale. ` +
+        `Voulez-vous continuer ?`
+      );
+      
+      if (!confirmReplace) {
+        return;
+      }
+    }
+
     this.mediaService.setMainImage(this.property.id, imageId).subscribe({
       next: (response) => {
         if (response.success) {
           this.loadMedia(this.property.id);
+          
+          if (existingMainImage) {
+            setTimeout(() => {
+              alert('✓ Image principale définie avec succès. L\'ancienne image principale a perdu son statut.');
+            }, 500);
+          }
         }
       },
       error: (err) => {

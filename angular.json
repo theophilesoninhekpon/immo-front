@@ -32,7 +32,7 @@
             "styles": [
               "src/styles.sass"
             ],
-            "externalDependencies": []
+            "externalDependencies": ["tailwindcss"]
           },
           "configurations": {
             "production": {

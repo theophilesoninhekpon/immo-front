@@ -43,19 +43,37 @@
         @if (property.images && property.images.length > 0) {
           <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
             <div class="grid grid-cols-2 gap-2 p-2">
-              <div class="col-span-2">
-                <img 
-                  [src]="getPropertyImageUrl(property.images[0])" 
-                  [alt]="property.title"
-                  class="w-full h-64 sm:h-80 md:h-96 object-cover rounded-lg"
-                />
-              </div>
-              @for (image of property.images.slice(1, 5); track image.id) {
-                <img 
-                  [src]="getPropertyImageUrl(image)" 
-                  [alt]="property.title"
-                  class="w-full h-32 sm:h-40 md:h-48 object-cover rounded-lg"
-                />
+              @if (getMainImage()) {
+                <div class="col-span-2">
+                  <img 
+                    [src]="getPropertyImageUrl(getMainImage()!)" 
+                    [alt]="property.title"
+                    class="w-full h-64 sm:h-80 md:h-96 object-cover rounded-lg"
+                  />
+                </div>
+                @for (image of getOtherImages().slice(0, 4); track image.id) {
+                  <img 
+                    [src]="getPropertyImageUrl(image)" 
+                    [alt]="property.title"
+                    class="w-full h-32 sm:h-40 md:h-48 object-cover rounded-lg"
+                  />
+                }
+              } @else {
+                <!-- Si pas d'image principale, afficher la première image en grand -->
+                <div class="col-span-2">
+                  <img 
+                    [src]="getPropertyImageUrl(property.images[0])" 
+                    [alt]="property.title"
+                    class="w-full h-64 sm:h-80 md:h-96 object-cover rounded-lg"
+                  />
+                </div>
+                @for (image of property.images.slice(1, 5); track image.id) {
+                  <img 
+                    [src]="getPropertyImageUrl(image)" 
+                    [alt]="property.title"
+                    class="w-full h-32 sm:h-40 md:h-48 object-cover rounded-lg"
+                  />
+                }
               }
             </div>
           </div>

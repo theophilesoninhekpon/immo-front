@@ -171,9 +171,9 @@
                 <tr class="hover:bg-blue-50/50 transition-colors duration-150">
                   <td class="px-6 py-4">
                     <div class="flex items-center space-x-4">
-                      @if (property.images && property.images.length > 0) {
+                      @if (getPropertyImageUrl(property)) {
                         <img 
-                          [src]="'http://localhost:8000/storage/' + property.images[0].file_path" 
+                          [src]="getPropertyImageUrl(property)" 
                           [alt]="property.title"
                           class="w-16 h-16 object-cover rounded-xl shadow-sm"
                         />
@@ -305,7 +305,7 @@
           @if (property.images && property.images.length > 0) {
             <div class="relative h-56 mb-4 overflow-hidden">
               <img 
-                [src]="'http://localhost:8000/storage/' + property.images[0].file_path" 
+                [src]="getPropertyImageUrl(property)" 
                 [alt]="property.title"
                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
               />
