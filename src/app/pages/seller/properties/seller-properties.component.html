@@ -1,0 +1,160 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-3xl font-bold text-slate-900">Mes Biens</h2>
+      <p class="text-slate-600 mt-1">Gérez vos propriétés immobilières</p>
+    </div>
+    @if (canCreateProperty) {
+      <a
+        [routerLink]="authService.hasRole('admin') ? '/admin/properties/new' : '/seller/properties/new'"
+        class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        <span>Ajouter un bien</span>
+      </a>
+    } @else {
+      <a
+        routerLink="/seller/profile"
+        class="px-6 py-3 bg-slate-400 text-white font-semibold rounded-lg shadow-lg cursor-not-allowed flex items-center space-x-2"
+        title="Vous devez être vérifié pour ajouter un bien"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+        </svg>
+        <span>Vérification requise</span>
+      </a>
+    }
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">Recherche</label>
+        <input
+          type="text"
+          [(ngModel)]="filters.search"
+          placeholder="Titre, référence..."
+          class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">Statut</label>
+        <select
+          [(ngModel)]="filters.status"
+          class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
+        >
+          <option value="">Tous les statuts</option>
+          <option value="pending_verification">En attente</option>
+          <option value="verified">Vérifié</option>
+          <option value="rejected">Rejeté</option>
+          <option value="draft">Brouillon</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">Trier par</label>
+        <select
+          [(ngModel)]="filters.sort_by"
+          class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
+        >
+          <option value="created_at">Date de création</option>
+          <option value="title">Titre</option>
+          <option value="price">Prix</option>
+        </select>
+      </div>
+      <div class="flex items-end">
+        <button
+          (click)="applyFilters()"
+          class="w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Filtrer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Properties List -->
+  @if (loading) {
+    <div class="flex items-center justify-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+  } @else if (properties.length === 0) {
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
+      <svg class="w-16 h-16 text-slate-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+      </svg>
+      <h3 class="text-xl font-semibold text-slate-900 mb-2">Aucun bien trouvé</h3>
+      <p class="text-slate-600 mb-6">Commencez par ajouter votre premier bien immobilier</p>
+      <a
+        routerLink="/seller/properties/new"
+        class="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        <span>Ajouter un bien</span>
+      </a>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (property of properties; track property.id) {
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-lg transition-shadow">
+          <!-- Image -->
+          <div class="h-48 bg-slate-200 relative">
+            @if (getMainImageUrl(property)) {
+              <img [src]="getMainImageUrl(property)" [alt]="property.title" class="w-full h-full object-cover">
+            } @else {
+              <div class="w-full h-full flex items-center justify-center">
+                <svg class="w-16 h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+            }
+            <span class="absolute top-2 right-2 px-2 py-1 text-xs font-semibold rounded {{ getStatusClass(property.status) }}">
+              {{ getStatusLabel(property.status) }}
+            </span>
+          </div>
+          
+          <!-- Content -->
+          <div class="p-4">
+            <h3 class="text-lg font-semibold text-slate-900 mb-2 line-clamp-2">{{ property.title }}</h3>
+            <p class="text-sm text-slate-600 mb-3 line-clamp-2">{{ property.description }}</p>
+            
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <p class="text-2xl font-bold text-blue-600">{{ property.price | number }} FCFA</p>
+                <p class="text-sm text-slate-500">{{ property.surface_area }} m²</p>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center space-x-2">
+              <a
+                [routerLink]="['/seller/properties', property.id]"
+                class="flex-1 px-4 py-2 bg-blue-600 text-white text-center font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Voir les détails
+              </a>
+              <a
+                [routerLink]="['/seller/properties', property.id, 'edit']"
+                class="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 transition-colors"
+              >
+                Modifier
+              </a>
+              <button
+                (click)="deleteProperty(property.id)"
+                class="px-4 py-2 bg-red-100 text-red-700 font-semibold rounded-lg hover:bg-red-200 transition-colors"
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+

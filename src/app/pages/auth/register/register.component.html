@@ -1,123 +1,261 @@
-<div class="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8">
-    <div class="text-center">
-      <h1 class="text-4xl font-display font-bold text-gray-900 mb-2">Inscription</h1>
-      <p class="text-gray-600">Créez votre compte en quelques secondes</p>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-2xl w-full">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl mb-4 shadow-lg">
+        <span class="text-white text-3xl font-bold">🏠</span>
+      </div>
+      <h1 class="text-4xl font-bold text-slate-900 mb-2">Créer un compte</h1>
+      <p class="text-slate-600">Rejoignez ImmoBénin et trouvez ou vendez votre bien immobilier</p>
     </div>
     
-    <div class="card">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
       @if (error) {
-        <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p class="text-sm text-red-800">{{ error }}</p>
+        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-sm font-medium text-red-800">{{ error }}</p>
+          </div>
         </div>
       }
       
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
-        <div class="grid grid-cols-2 gap-4">
+        <!-- Nom et Prénom -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label for="first_name" class="label">Prénom</label>
+            <label for="first_name" class="block text-sm font-semibold text-slate-700 mb-2">
+              Prénom <span class="text-red-500">*</span>
+            </label>
             <input
               type="text"
               id="first_name"
               formControlName="first_name"
-              class="input"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               placeholder="Jean"
+              [class.border-red-500]="registerForm.get('first_name')?.invalid && registerForm.get('first_name')?.touched"
             />
+            @if (registerForm.get('first_name')?.hasError('required') && registerForm.get('first_name')?.touched) {
+              <p class="mt-1 text-sm text-red-600">Le prénom est requis</p>
+            }
+            @if (registerForm.get('first_name')?.hasError('minlength') && registerForm.get('first_name')?.touched) {
+              <p class="mt-1 text-sm text-red-600">Le prénom doit contenir au moins 2 caractères</p>
+            }
           </div>
           
           <div>
-            <label for="name" class="label">Nom</label>
+            <label for="name" class="block text-sm font-semibold text-slate-700 mb-2">
+              Nom <span class="text-red-500">*</span>
+            </label>
             <input
               type="text"
               id="name"
               formControlName="name"
-              class="input"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               placeholder="Dupont"
+              [class.border-red-500]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched"
             />
+            @if (registerForm.get('name')?.hasError('required') && registerForm.get('name')?.touched) {
+              <p class="mt-1 text-sm text-red-600">Le nom est requis</p>
+            }
+            @if (registerForm.get('name')?.hasError('minlength') && registerForm.get('name')?.touched) {
+              <p class="mt-1 text-sm text-red-600">Le nom doit contenir au moins 2 caractères</p>
+            }
           </div>
         </div>
         
+        <!-- Email -->
         <div>
-          <label for="email" class="label">Email</label>
+          <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">
+            Adresse email <span class="text-red-500">*</span>
+          </label>
           <input
             type="email"
             id="email"
             formControlName="email"
-            class="input"
+            class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             placeholder="votre@email.com"
+            [class.border-red-500]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
           />
+          @if (registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched) {
+            <p class="mt-1 text-sm text-red-600">L'adresse email est requise</p>
+          }
+          @if (registerForm.get('email')?.hasError('email') && registerForm.get('email')?.touched) {
+            <p class="mt-1 text-sm text-red-600">L'adresse email n'est pas valide</p>
+          }
         </div>
         
+        <!-- Téléphone -->
         <div>
-          <label for="phone" class="label">Téléphone</label>
+          <label for="phone" class="block text-sm font-semibold text-slate-700 mb-2">
+            Téléphone <span class="text-red-500">*</span>
+          </label>
           <input
             type="tel"
             id="phone"
             formControlName="phone"
-            class="input"
-            placeholder="+229 XX XX XX XX"
+            class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            placeholder="01 XX XX XX XX"
+            [class.border-red-500]="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched"
           />
-        </div>
-        
-        <div>
-          <label for="role" class="label">Je suis</label>
-          <select id="role" formControlName="role" class="input">
-            <option value="acheteur">Acheteur</option>
-            <option value="vendeur">Vendeur</option>
-          </select>
-        </div>
-        
-        <div>
-          <label for="password" class="label">Mot de passe</label>
-          <input
-            type="password"
-            id="password"
-            formControlName="password"
-            class="input"
-            placeholder="••••••••"
-          />
-          @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
-            <p class="mt-1 text-sm text-red-600">Au moins 8 caractères</p>
+          <p class="mt-1 text-xs text-slate-500">Format : 01XXXXXXXX (10 chiffres commençant par 01)</p>
+          @if (registerForm.get('phone')?.hasError('required') && registerForm.get('phone')?.touched) {
+            <p class="mt-1 text-sm text-red-600">Le numéro de téléphone est requis</p>
+          }
+          @if (registerForm.get('phone')?.hasError('phoneFormat') && registerForm.get('phone')?.touched) {
+            <p class="mt-1 text-sm text-red-600">Le numéro doit contenir 10 chiffres et commencer par 01</p>
           }
         </div>
         
+        <!-- Rôle -->
         <div>
-          <label for="password_confirmation" class="label">Confirmer le mot de passe</label>
-          <input
-            type="password"
-            id="password_confirmation"
-            formControlName="password_confirmation"
-            [class]="'input' + (registerForm.hasError('passwordMismatch') && registerForm.get('password_confirmation')?.touched ? ' input-error' : '')"
-            placeholder="••••••••"
-          />
+          <label for="role" class="block text-sm font-semibold text-slate-700 mb-2">
+            Je suis <span class="text-red-500">*</span>
+          </label>
+          <select 
+            id="role" 
+            formControlName="role" 
+            class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white"
+          >
+            <option value="acheteur">Acheteur - Je cherche un bien</option>
+            <option value="vendeur">Vendeur - Je vends un bien</option>
+          </select>
+        </div>
+        
+        <!-- Mot de passe -->
+        <div>
+          <label for="password" class="block text-sm font-semibold text-slate-700 mb-2">
+            Mot de passe <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              formControlName="password"
+              class="w-full px-4 py-3 pr-12 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              placeholder="••••••••"
+              [class.border-red-500]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+            />
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700"
+            >
+              @if (showPassword) {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                </svg>
+              } @else {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+              }
+            </button>
+          </div>
+          
+          @if (registerForm.get('password')?.value) {
+            <div class="mt-2">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs text-slate-600">Force du mot de passe</span>
+                <span class="text-xs font-semibold" [class.text-red-600]="getPasswordStrength().strength === 'Faible'" [class.text-yellow-600]="getPasswordStrength().strength === 'Moyen'" [class.text-blue-600]="getPasswordStrength().strength === 'Bon'" [class.text-green-600]="getPasswordStrength().strength === 'Fort'">{{ getPasswordStrength().strength }}</span>
+              </div>
+              <div class="w-full bg-slate-200 rounded-full h-2">
+                <div class="h-2 rounded-full transition-all duration-300 {{ getPasswordStrength().color }}" [style.width.%]="getPasswordStrength().percentage"></div>
+              </div>
+            </div>
+          }
+          
+          @if (registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched) {
+            <p class="mt-1 text-sm text-red-600">Le mot de passe est requis</p>
+          }
+          @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
+            <p class="mt-1 text-sm text-red-600">Le mot de passe doit contenir au moins 8 caractères</p>
+          }
+          @if (registerForm.get('password')?.hasError('passwordStrength') && registerForm.get('password')?.touched) {
+            <p class="mt-1 text-sm text-red-600">Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre</p>
+          }
+          
+          <div class="mt-2 text-xs text-slate-500">
+            <p>Le mot de passe doit contenir :</p>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+              <li [class.text-green-600]="hasLowerCase()" [class.text-slate-400]="!hasLowerCase()">Au moins une minuscule</li>
+              <li [class.text-green-600]="hasUpperCase()" [class.text-slate-400]="!hasUpperCase()">Au moins une majuscule</li>
+              <li [class.text-green-600]="hasNumeric()" [class.text-slate-400]="!hasNumeric()">Au moins un chiffre</li>
+              <li [class.text-green-600]="hasMinLength()" [class.text-slate-400]="!hasMinLength()">Au moins 8 caractères</li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Confirmation mot de passe -->
+        <div>
+          <label for="password_confirmation" class="block text-sm font-semibold text-slate-700 mb-2">
+            Confirmer le mot de passe <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <input
+              [type]="showPasswordConfirmation ? 'text' : 'password'"
+              id="password_confirmation"
+              formControlName="password_confirmation"
+              class="w-full px-4 py-3 pr-12 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              placeholder="••••••••"
+              [class.border-red-500]="registerForm.hasError('passwordMismatch') && registerForm.get('password_confirmation')?.touched"
+            />
+            <button
+              type="button"
+              (click)="togglePasswordConfirmationVisibility()"
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700"
+            >
+              @if (showPasswordConfirmation) {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                </svg>
+              } @else {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+              }
+            </button>
+          </div>
           @if (registerForm.hasError('passwordMismatch') && registerForm.get('password_confirmation')?.touched) {
             <p class="mt-1 text-sm text-red-600">Les mots de passe ne correspondent pas</p>
           }
         </div>
         
+        <!-- Debug (à supprimer en production) -->
+        @if (false) {
+          <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-xs">
+            <p><strong>Form valid:</strong> {{ registerForm.valid }}</p>
+            <p><strong>Form invalid:</strong> {{ registerForm.invalid }}</p>
+            <p><strong>Custom check:</strong> {{ isFormValid() }}</p>
+            <pre>{{ getFormErrors() | json }}</pre>
+          </div>
+        }
+
+        <!-- Bouton submit -->
         <button
           type="submit"
-          class="btn btn-primary w-full"
-          [disabled]="registerForm.invalid || loading"
+          class="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          [disabled]="!isFormValid() || loading"
         >
           @if (loading) {
-            <span class="flex items-center justify-center">
-              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Inscription...
-            </span>
+            <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Inscription en cours...</span>
           } @else {
-            S'inscrire
+            <span>Créer mon compte</span>
           }
         </button>
       </form>
       
-      <div class="mt-6 text-center">
-        <p class="text-sm text-gray-600">
+      <div class="mt-6 pt-6 border-t border-slate-200 text-center">
+        <p class="text-sm text-slate-600">
           Déjà un compte ?
-          <a routerLink="/login" class="font-semibold text-primary-600 hover:text-primary-700">
+          <a routerLink="/login" class="font-semibold text-blue-600 hover:text-blue-700 transition-colors">
             Se connecter
           </a>
         </p>

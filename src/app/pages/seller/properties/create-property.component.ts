@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractContro
 import { Router } from '@angular/router';
 import { PropertyService } from '../../../services/property.service';
 import { LocationService } from '../../../services/location.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-create-property',
@@ -33,7 +34,7 @@ export class CreatePropertyComponent implements OnInit {
   towns: any[] = [];
   features: any[] = [];
 
-  constructor() {
+  constructor(private authService: AuthService) {
     this.initForm();
   }
 
@@ -278,6 +279,7 @@ export class CreatePropertyComponent implements OnInit {
         property_type_id: formValue.property_type_id,
         price: parseFloat(formValue.price),
         surface_area: parseFloat(formValue.surface_area),
+        rooms: formValue.rooms ? parseInt(formValue.rooms) : undefined,
         bedrooms: formValue.bedrooms ? parseInt(formValue.bedrooms) : undefined,
         bathrooms: formValue.bathrooms ? parseInt(formValue.bathrooms) : undefined,
         floors: formValue.floors ? parseInt(formValue.floors) : undefined,
@@ -309,6 +311,7 @@ export class CreatePropertyComponent implements OnInit {
         property_type_id: propertyData.property_type_id,
         price: propertyData.price,
         surface_area: propertyData.surface_area,
+        rooms: propertyData.rooms,
         bedrooms: propertyData.bedrooms,
         bathrooms: propertyData.bathrooms,
         floors: propertyData.floors,

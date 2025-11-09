@@ -1,0 +1,248 @@
+<div class="min-h-screen bg-slate-50 py-8 px-4">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900 mb-2">Types de documents</h1>
+        <p class="text-slate-600">Gérez les types de documents pour les utilisateurs et les biens</p>
+      </div>
+      <button
+        (click)="openForm()"
+        class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+      >
+        + Ajouter un type
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Recherche</label>
+          <input
+            type="text"
+            [(ngModel)]="filters.search"
+            placeholder="Nom, code..."
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Type d'entité</label>
+          <select
+            [(ngModel)]="filters.entity_type"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Tous</option>
+            <option value="user">Utilisateur</option>
+            <option value="property">Bien</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Statut</label>
+          <select
+            [(ngModel)]="filters.is_active"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Tous</option>
+            <option value="true">Actif</option>
+            <option value="false">Inactif</option>
+          </select>
+        </div>
+        <div class="flex items-end gap-2">
+          <button
+            (click)="applyFilters()"
+            class="flex-1 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Filtrer
+          </button>
+          <button
+            (click)="resetFilters()"
+            class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition-colors"
+          >
+            Réinitialiser
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-slate-50 border-b border-slate-200">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Nom</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Code</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Entité</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Requis</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Statut</th>
+              <th class="px-6 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200">
+            @if (loading) {
+              <tr>
+                <td colspan="6" class="px-6 py-8 text-center text-slate-500">Chargement...</td>
+              </tr>
+            } @else if (documentTypes.length === 0) {
+              <tr>
+                <td colspan="6" class="px-6 py-8 text-center text-slate-500">Aucun type de document trouvé</td>
+              </tr>
+            } @else {
+              @for (type of documentTypes; track type.id) {
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <p class="font-semibold text-slate-900">{{ type.name }}</p>
+                    @if (type.description) {
+                      <p class="text-sm text-slate-600">{{ type.description }}</p>
+                    }
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <code class="text-sm text-slate-700 bg-slate-100 px-2 py-1 rounded">{{ type.code }}</code>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm text-slate-700">{{ type.entity_type === 'user' ? 'Utilisateur' : 'Bien' }}</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    @if (type.is_required) {
+                      <span class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">Requis</span>
+                    } @else {
+                      <span class="px-2 py-1 bg-slate-100 text-slate-800 rounded text-xs font-semibold">Optionnel</span>
+                    }
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    @if (type.is_active) {
+                      <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">Actif</span>
+                    } @else {
+                      <span class="px-2 py-1 bg-slate-100 text-slate-800 rounded text-xs font-semibold">Inactif</span>
+                    }
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right">
+                    <div class="flex items-center justify-end gap-2">
+                      <button
+                        (click)="openForm(type)"
+                        class="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                      >
+                        Modifier
+                      </button>
+                      <button
+                        (click)="delete(type.id)"
+                        class="text-red-600 hover:text-red-700 font-medium text-sm"
+                      >
+                        Supprimer
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal Form -->
+    @if (showForm) {
+      <div class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 flex items-center justify-center p-4" (click)="closeForm()">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6" (click)="$event.stopPropagation()">
+          <h2 class="text-2xl font-bold text-slate-900 mb-6">
+            {{ editingType ? 'Modifier le type de document' : 'Nouveau type de document' }}
+          </h2>
+          
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Nom <span class="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  [(ngModel)]="formData.name"
+                  class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Code <span class="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  [(ngModel)]="formData.code"
+                  class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Type d'entité <span class="text-red-500">*</span></label>
+                <select
+                  [(ngModel)]="formData.entity_type"
+                  class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="user">Utilisateur</option>
+                  <option value="property">Bien</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Taille max (octets)</label>
+                <input
+                  type="number"
+                  [(ngModel)]="formData.max_file_size"
+                  class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-2">Description</label>
+              <textarea
+                [(ngModel)]="formData.description"
+                rows="3"
+                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              ></textarea>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+              <div class="flex items-center">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="formData.is_required"
+                  id="is_required"
+                  class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                />
+                <label for="is_required" class="ml-2 text-sm text-slate-700">Requis</label>
+              </div>
+              <div class="flex items-center">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="formData.is_active"
+                  id="is_active"
+                  class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                />
+                <label for="is_active" class="ml-2 text-sm text-slate-700">Actif</label>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Ordre</label>
+                <input
+                  type="number"
+                  [(ngModel)]="formData.sort_order"
+                  class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 mt-6">
+            <button
+              (click)="save()"
+              class="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              {{ editingType ? 'Enregistrer' : 'Créer' }}
+            </button>
+            <button
+              (click)="closeForm()"
+              class="px-6 py-3 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition-colors"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+

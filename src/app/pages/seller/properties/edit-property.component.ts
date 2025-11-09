@@ -342,6 +342,7 @@ export class EditPropertyComponent implements OnInit {
         property_type_id: parseInt(formValue.property_type_id),
         price: parseFloat(formValue.price),
         surface_area: parseFloat(formValue.surface_area),
+        rooms: formValue.rooms ? parseInt(formValue.rooms) : undefined,
         bedrooms: formValue.bedrooms ? parseInt(formValue.bedrooms) : undefined,
         bathrooms: formValue.bathrooms ? parseInt(formValue.bathrooms) : undefined,
         floors: formValue.floors ? parseInt(formValue.floors) : undefined,

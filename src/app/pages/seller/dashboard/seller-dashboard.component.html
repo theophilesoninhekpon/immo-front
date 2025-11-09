@@ -1,20 +1,10 @@
-<div class="space-y-8">
-  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-    <div>
-      <h1 class="text-4xl font-display font-bold text-slate-900">Mes Biens</h1>
-      <p class="text-slate-600 mt-2">Gérez vos annonces immobilières</p>
-    </div>
-    <a 
-      routerLink="/seller/properties/new" 
-      class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-blue-700 hover:via-blue-700 hover:to-blue-800 transform hover:-translate-y-0.5 transition-all duration-200 group"
-    >
-      <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-      </svg>
-      Ajouter un bien
-    </a>
+<div class="space-y-6 sm:space-y-8">
+  <!-- Header -->
+  <div>
+    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-2">Dashboard</h1>
+    <p class="text-sm sm:text-base text-slate-600">Vue d'ensemble de vos biens immobiliers</p>
   </div>
-  
+
   @if (user && user.verification_status !== 'verified') {
     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
       <div class="flex items-start">
@@ -31,88 +21,156 @@
       </div>
     </div>
   }
-  
-  @if (loading) {
-    <div class="flex justify-center items-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+    <!-- Total Properties -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs sm:text-sm text-slate-600 mb-1">Total des biens</p>
+          <p class="text-2xl sm:text-3xl font-bold text-slate-900">{{ stats.total }}</p>
+        </div>
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+          </svg>
+        </div>
+      </div>
     </div>
-  } @else if (properties.length === 0) {
-    <div class="bg-white rounded-xl shadow-lg border border-slate-200 text-center py-16 px-6">
-      <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+
+    <!-- Published Properties -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs sm:text-sm text-slate-600 mb-1">Biens publiés</p>
+          <p class="text-2xl sm:text-3xl font-bold text-green-600">{{ stats.published }}</p>
+        </div>
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Properties -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs sm:text-sm text-slate-600 mb-1">En attente</p>
+          <p class="text-2xl sm:text-3xl font-bold text-yellow-600">{{ stats.pending }}</p>
+        </div>
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rejected Properties -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs sm:text-sm text-slate-600 mb-1">Rejetés</p>
+          <p class="text-2xl sm:text-3xl font-bold text-red-600">{{ stats.rejected }}</p>
+        </div>
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sold Properties -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs sm:text-sm text-slate-600 mb-1">Vendus</p>
+          <p class="text-2xl sm:text-3xl font-bold text-purple-600">{{ stats.sold }}</p>
+        </div>
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+    <!-- Requests (Info only, managed by admin) -->
+    <div 
+      class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg border border-blue-500 p-4 sm:p-6 text-white"
+    >
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs sm:text-sm text-blue-100 mb-1">Demandes d'intérêts</p>
+          <p class="text-2xl sm:text-3xl font-bold">{{ requestsCount }}</p>
+          <p class="text-xs text-blue-200 mt-2">Gérées par l'administrateur</p>
+        </div>
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Requests -->
+    <a 
+      routerLink="/seller/services"
+      class="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-xl shadow-lg border border-indigo-500 p-4 sm:p-6 text-white hover:from-indigo-700 hover:to-indigo-800 transition-all block"
+    >
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs sm:text-sm text-indigo-100 mb-1">Demandes de service</p>
+          <p class="text-2xl sm:text-3xl font-bold">{{ serviceRequestsCount }}</p>
+        </div>
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+    <a
+      routerLink="/seller/properties"
+      class="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6 hover:shadow-xl transition-all group"
+    >
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg sm:text-xl font-bold text-slate-900 mb-1 sm:mb-2 group-hover:text-blue-600 transition-colors">Mes Biens</h3>
+          <p class="text-sm sm:text-base text-slate-600">Gérez tous vos biens immobiliers</p>
+        </div>
+        <svg class="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 group-hover:translate-x-1 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
         </svg>
       </div>
-      <h3 class="text-2xl font-bold text-slate-900 mb-2">Aucun bien</h3>
-      <p class="text-slate-600 mb-8 max-w-md mx-auto">Commencez par ajouter votre premier bien immobilier pour le mettre en vente</p>
-      <a 
-        routerLink="/seller/properties/new" 
-        class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:from-blue-700 hover:via-blue-700 hover:to-blue-800 transform hover:-translate-y-0.5 transition-all duration-200 group"
+    </a>
+
+    @if (canCreateProperty) {
+      <a
+        routerLink="/seller/properties/new"
+        class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg border border-blue-500 p-6 text-white hover:from-blue-700 hover:to-blue-800 transition-all group"
       >
-        <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        Ajouter mon premier bien
-      </a>
-    </div>
-  } @else {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      @for (property of properties; track property.id) {
-        <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden group hover:shadow-xl transition-shadow duration-300">
-          @if (property.images && property.images.length > 0) {
-            <div class="relative h-48 mb-4 overflow-hidden">
-              <img 
-                [src]="'http://localhost:8000/storage/' + property.images[0].file_path" 
-                [alt]="property.title"
-                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <span [class]="'absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold shadow-md ' + 
-                (property.status === 'available' ? 'bg-green-100 text-green-800' : 
-                 property.status === 'pending_verification' ? 'bg-yellow-100 text-yellow-800' :
-                 property.status === 'sold' ? 'bg-blue-100 text-blue-800' :
-                 'bg-red-100 text-red-800')">
-                {{ getStatusLabel(property.status) }}
-              </span>
-            </div>
-          } @else {
-            <div class="h-48 mb-4 bg-slate-100 rounded-lg flex items-center justify-center">
-              <svg class="w-16 h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-              </svg>
-            </div>
-          }
-          
-          <div class="p-6">
-            <h3 class="text-xl font-bold text-slate-900 mb-2 line-clamp-2">{{ property.title }}</h3>
-            <p class="text-2xl font-bold text-blue-600 mb-3">{{ property.price | number }} FCFA</p>
-            <div class="flex items-center text-sm text-slate-600 mb-4 space-x-4">
-              <span class="flex items-center">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
-                </svg>
-                {{ property.surface_area }} m²
-              </span>
-              <span>•</span>
-              <span>{{ property.rooms || 0 }} pièces</span>
-            </div>
-            
-            <div class="flex gap-2 pt-4 border-t border-slate-100">
-              <a 
-                [routerLink]="['/seller/properties', property.id]" 
-                class="flex-1 text-center px-4 py-2.5 border-2 border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 hover:border-slate-400 shadow-sm hover:shadow-md transition-all duration-200 text-sm"
-              >
-                Voir
-              </a>
-              <a 
-                [routerLink]="['/seller/properties', property.id, 'edit']" 
-                class="flex-1 text-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 text-sm"
-              >
-                Modifier
-              </a>
-            </div>
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-xl font-bold mb-2">Ajouter un bien</h3>
+            <p class="text-blue-100">Créez une nouvelle annonce</p>
           </div>
+          <svg class="w-8 h-8 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
         </div>
-      }
-    </div>
-  }
+      </a>
+    }
+  </div>
 </div>

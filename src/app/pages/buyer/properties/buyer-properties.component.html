@@ -1,0 +1,247 @@
+<div class="min-h-screen bg-slate-50 py-8 px-4">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-slate-900 mb-2">Rechercher un bien</h1>
+      <p class="text-slate-600">Découvrez notre sélection de biens immobiliers au Bénin</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 mb-2">Recherche</label>
+          <input
+            type="text"
+            [(ngModel)]="filters.search"
+            placeholder="Titre, description, référence..."
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Type de bien</label>
+          <select
+            [(ngModel)]="filters.property_type_id"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Tous les types</option>
+            @for (type of propertyTypes; track type.id) {
+              <option [value]="type.id">{{ type.name }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Département</label>
+          <select
+            [(ngModel)]="filters.department_id"
+            (change)="onDepartmentChange()"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Tous les départements</option>
+            @for (dept of departments; track dept.id) {
+              <option [value]="dept.id">{{ dept.name }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Commune</label>
+          <select
+            [(ngModel)]="filters.commune_id"
+            [disabled]="!filters.department_id"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-100"
+          >
+            <option value="">Toutes les communes</option>
+            @for (commune of communes; track commune.id) {
+              <option [value]="commune.id">{{ commune.name }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Prix min (FCFA)</label>
+          <input
+            type="number"
+            [(ngModel)]="filters.min_price"
+            placeholder="Prix minimum"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Prix max (FCFA)</label>
+          <input
+            type="number"
+            [(ngModel)]="filters.max_price"
+            placeholder="Prix maximum"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Surface min (m²)</label>
+          <input
+            type="number"
+            [(ngModel)]="filters.min_surface"
+            placeholder="Surface minimum"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Surface max (m²)</label>
+          <input
+            type="number"
+            [(ngModel)]="filters.max_surface"
+            placeholder="Surface maximum"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Chambres</label>
+          <input
+            type="number"
+            [(ngModel)]="filters.bedrooms"
+            placeholder="Nombre de chambres"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Salles de bain</label>
+          <input
+            type="number"
+            [(ngModel)]="filters.bathrooms"
+            placeholder="Nombre de salles de bain"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Trier par</label>
+          <select
+            [(ngModel)]="filters.sort_by"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="created_at">Date de publication</option>
+            <option value="price">Prix</option>
+            <option value="surface_area">Surface</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Ordre</label>
+          <select
+            [(ngModel)]="filters.sort_order"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="desc">Décroissant</option>
+            <option value="asc">Croissant</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 mt-4">
+        <button
+          (click)="applyFilters()"
+          class="flex-1 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Filtrer
+        </button>
+        <button
+          (click)="resetFilters()"
+          class="px-6 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition-colors"
+        >
+          Réinitialiser
+        </button>
+      </div>
+    </div>
+
+    <!-- Properties Grid -->
+    @if (loading) {
+      <div class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    } @else {
+      @if (properties.length === 0) {
+      <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-12 text-center">
+        <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <span class="text-5xl">🔍</span>
+        </div>
+        <h3 class="text-2xl font-bold text-slate-900 mb-2">Aucun bien trouvé</h3>
+        <p class="text-slate-600">Aucun bien ne correspond à vos critères de recherche</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        @for (property of properties; track property.id) {
+          <a 
+            [routerLink]="['/buyer/properties', property.id]" 
+            class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-all group block"
+          >
+            <div class="relative h-56 overflow-hidden">
+              @if (getPropertyImageUrl(property)) {
+                <img 
+                  [src]="getPropertyImageUrl(property)" 
+                  [alt]="property.title"
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                />
+              } @else {
+                <div class="w-full h-full bg-slate-100 flex items-center justify-center">
+                  <span class="text-5xl text-slate-400">🏠</span>
+                </div>
+              }
+              @if (property.is_verified) {
+                <span class="absolute top-3 right-3 px-3 py-1 bg-green-500 text-white rounded-full text-xs font-semibold">
+                  ✓ Vérifié
+                </span>
+              }
+            </div>
+            
+            <div class="p-4 space-y-2">
+              <h3 class="text-xl font-bold text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                {{ property.title }}
+              </h3>
+              <p class="text-2xl font-bold text-blue-600">{{ property.price | number }} FCFA</p>
+              <div class="flex items-center text-sm text-slate-600 space-x-4">
+                <span>{{ property.surface_area }} m²</span>
+                <span>•</span>
+                <span>{{ property.rooms || 0 }} pièces</span>
+                @if (property.bedrooms) {
+                  <span>•</span>
+                  <span>{{ property.bedrooms }} chambres</span>
+                }
+              </div>
+              @if (property.address) {
+                <p class="text-sm text-slate-500 flex items-center mt-2">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                  {{ property.address.commune?.name }}, {{ property.address.department?.name }}
+                </p>
+              }
+            </div>
+          </a>
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if (totalPages > 1) {
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 px-6 py-4 flex items-center justify-between">
+          <div class="text-sm text-slate-600">
+            Page {{ currentPage }} sur {{ totalPages }} ({{ total }} bien(s))
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              (click)="previousPage()"
+              [disabled]="currentPage === 1"
+              class="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Précédent
+            </button>
+            <button
+              (click)="nextPage()"
+              [disabled]="currentPage === totalPages"
+              class="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Suivant
+            </button>
+          </div>
+        </div>
+      }
+      }
+    }
+  </div>
+</div>
+

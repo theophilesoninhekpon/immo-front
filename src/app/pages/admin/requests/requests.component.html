@@ -1,0 +1,271 @@
+<div class="min-h-screen bg-slate-50 py-8 px-4">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-slate-900 mb-2">Requêtes et demandes d'intérêt</h1>
+      <p class="text-slate-600">Gérez les demandes d'intérêt des acheteurs pour les biens</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Recherche</label>
+          <input
+            type="text"
+            [(ngModel)]="filters.search"
+            placeholder="Nom, email, bien..."
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Statut</label>
+          <select
+            [(ngModel)]="filters.status"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Tous les statuts</option>
+            <option value="pending">En attente</option>
+            <option value="contacted">Contacté</option>
+            <option value="interested">Intéressé</option>
+            <option value="not_interested">Non intéressé</option>
+            <option value="scheduled_visit">Visite programmée</option>
+            <option value="completed">Terminé</option>
+          </select>
+        </div>
+        <div class="flex items-end">
+          <label class="flex items-center">
+            <input
+              type="checkbox"
+              [(ngModel)]="filters.unassigned"
+              class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+            />
+            <span class="ml-2 text-sm text-slate-700">Non assignées uniquement</span>
+          </label>
+        </div>
+        <div class="flex items-end gap-2">
+          <button
+            (click)="applyFilters()"
+            class="flex-1 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Filtrer
+          </button>
+          <button
+            (click)="resetFilters()"
+            class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition-colors"
+          >
+            Réinitialiser
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-slate-50 border-b border-slate-200">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Acheteur</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Bien</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Message</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Statut</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200">
+            @if (loading) {
+              <tr>
+                <td colspan="6" class="px-6 py-8 text-center text-slate-500">Chargement...</td>
+              </tr>
+            } @else if (requests.length === 0) {
+              <tr>
+                <td colspan="6" class="px-6 py-8 text-center text-slate-500">Aucune requête trouvée</td>
+              </tr>
+            } @else {
+              @for (request of requests; track request.id) {
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="px-6 py-4">
+                    <div>
+                      <p class="font-semibold text-slate-900">{{ request.contact_name }}</p>
+                      <p class="text-sm text-slate-600">{{ request.contact_email }}</p>
+                      <p class="text-xs text-slate-500">{{ request.contact_phone }}</p>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    @if (request.property) {
+                      <div>
+                        <p class="font-semibold text-slate-900">{{ request.property.title }}</p>
+                        <p class="text-sm text-slate-600">Ref: {{ request.property.reference }}</p>
+                      </div>
+                    } @else {
+                      <span class="text-slate-500">Bien supprimé</span>
+                    }
+                  </td>
+                  <td class="px-6 py-4">
+                    <p class="text-sm text-slate-700 line-clamp-2">{{ request.message }}</p>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 rounded text-xs font-semibold {{ getStatusClass(request.status) }}">
+                      {{ getStatusLabel(request.status) }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                    {{ request.created_at | date:'dd/MM/yyyy' }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right">
+                    <button
+                      (click)="selectRequest(request)"
+                      class="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                    >
+                      Voir détails
+                    </button>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (totalPages > 1) {
+        <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between">
+          <div class="text-sm text-slate-600">
+            Page {{ currentPage }} sur {{ totalPages }} ({{ total }} requête(s))
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              (click)="previousPage()"
+              [disabled]="currentPage === 1"
+              class="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Précédent
+            </button>
+            <button
+              (click)="nextPage()"
+              [disabled]="currentPage === totalPages"
+              class="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Suivant
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Detail Modal -->
+    @if (selectedRequest) {
+      <div class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 flex items-center justify-center p-4" (click)="selectedRequest = null">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-slate-900">Détails de la requête</h2>
+            <button
+              (click)="selectedRequest = null"
+              class="text-slate-500 hover:text-slate-700"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Acheteur</label>
+              <p class="text-slate-900">{{ selectedRequest.contact_name }}</p>
+              <p class="text-sm text-slate-600">{{ selectedRequest.contact_email }}</p>
+              <p class="text-sm text-slate-600">{{ selectedRequest.contact_phone }}</p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Bien</label>
+              @if (selectedRequest.property) {
+                <p class="text-slate-900">{{ selectedRequest.property.title }}</p>
+                <p class="text-sm text-slate-600">Ref: {{ selectedRequest.property.reference }}</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Message</label>
+              <p class="text-slate-700">{{ selectedRequest.message }}</p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Statut</label>
+              <span class="px-3 py-1 rounded-lg text-sm font-semibold {{ getStatusClass(selectedRequest.status) }}">
+                {{ getStatusLabel(selectedRequest.status) }}
+              </span>
+            </div>
+
+            @if (selectedRequest.assigned_to) {
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Assigné à</label>
+                <p class="text-slate-700">{{ selectedRequest.assigned_to?.name || 'N/A' }}</p>
+              </div>
+            }
+
+            @if (selectedRequest.follow_up_notes) {
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Notes de suivi</label>
+                <p class="text-slate-700 whitespace-pre-line">{{ selectedRequest.follow_up_notes }}</p>
+              </div>
+            }
+
+            <!-- Actions -->
+            <div class="pt-4 border-t border-slate-200">
+              <h3 class="text-lg font-semibold text-slate-900 mb-3">Actions</h3>
+              <div class="grid grid-cols-2 gap-3">
+                @if (selectedRequest.status === 'pending') {
+                  <button
+                    (click)="updateStatus(selectedRequest.id, 'contacted')"
+                    [disabled]="updating"
+                    class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                  >
+                    Marquer comme contacté
+                  </button>
+                }
+                @if (selectedRequest.status === 'contacted') {
+                  <button
+                    (click)="updateStatus(selectedRequest.id, 'interested')"
+                    [disabled]="updating"
+                    class="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+                  >
+                    Marquer comme intéressé
+                  </button>
+                  <button
+                    (click)="updateStatus(selectedRequest.id, 'not_interested')"
+                    [disabled]="updating"
+                    class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                  >
+                    Non intéressé
+                  </button>
+                }
+                @if (selectedRequest.status === 'interested') {
+                  <button
+                    (click)="updateStatus(selectedRequest.id, 'scheduled_visit')"
+                    [disabled]="updating"
+                    class="px-4 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                  >
+                    Programmer une visite
+                  </button>
+                }
+                @if (selectedRequest.status === 'scheduled_visit') {
+                  <button
+                    (click)="updateStatus(selectedRequest.id, 'completed')"
+                    [disabled]="updating"
+                    class="px-4 py-2 bg-slate-600 text-white font-semibold rounded-lg hover:bg-slate-700 disabled:opacity-50 transition-colors"
+                  >
+                    Marquer comme terminé
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+

@@ -1,0 +1,262 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-3xl font-bold text-slate-900">Demandes de service</h2>
+      <p class="text-slate-600 mt-1">Gérez les demandes de service des utilisateurs</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">Recherche</label>
+        <input
+          type="text"
+          [(ngModel)]="filters.search"
+          (ngModelChange)="loadServiceRequests()"
+          placeholder="Service, description..."
+          class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">Service</label>
+        <select
+          [(ngModel)]="filters.service_id"
+          (ngModelChange)="loadServiceRequests()"
+          class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+        >
+          <option value="">Tous</option>
+          @for (service of services; track service.id) {
+            <option [value]="service.id">{{ service.name }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">Statut</label>
+        <select
+          [(ngModel)]="filters.status"
+          (ngModelChange)="loadServiceRequests()"
+          class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+        >
+          <option value="">Tous</option>
+          <option value="pending">En attente</option>
+          <option value="in_progress">En cours</option>
+          <option value="completed">Terminé</option>
+          <option value="cancelled">Annulé</option>
+          <option value="on_hold">En pause</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">Utilisateur ID</label>
+        <input
+          type="number"
+          [(ngModel)]="filters.user_id"
+          (ngModelChange)="loadServiceRequests()"
+          placeholder="ID utilisateur..."
+          class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div class="flex items-end">
+        <button
+          (click)="loadServiceRequests()"
+          class="w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Filtrer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  @if (loading) {
+    <div class="flex items-center justify-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+  } @else {
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <table class="min-w-full divide-y divide-slate-200">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Service</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Utilisateur</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Propriété</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Statut</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Devis</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Date</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-slate-200">
+          @if (serviceRequests.length === 0) {
+            <tr>
+              <td colspan="7" class="px-6 py-12 text-center text-slate-500">
+                Aucune demande de service trouvée
+              </td>
+            </tr>
+          } @else {
+            @for (request of serviceRequests; track request.id) {
+              <tr class="hover:bg-slate-50">
+                <td class="px-6 py-4">
+                  <div>
+                    <span class="text-sm font-medium text-slate-900">{{ request.service?.name || '-' }}</span>
+                    @if (request.description) {
+                      <p class="text-xs text-slate-500 mt-1 line-clamp-2">{{ request.description }}</p>
+                    }
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm">
+                    <span class="font-medium text-slate-900">
+                      {{ request.user?.first_name }} {{ request.user?.name }}
+                    </span>
+                    <p class="text-xs text-slate-500">{{ request.user?.email }}</p>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                  {{ request.property ? (request.property.title || 'Propriété #' + request.property.id) : 'Aucune' }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span [class]="'px-2 py-1 text-xs font-semibold rounded ' + getStatusClass(request.status)">
+                    {{ getStatusLabel(request.status) }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm">
+                    <span [class]="'px-2 py-1 text-xs font-semibold rounded ' + getPricingStatusClass(request.pricing_status)">
+                      {{ getPricingStatusLabel(request.pricing_status) }}
+                    </span>
+                    @if (request.quoted_price) {
+                      <p class="text-xs text-slate-500 mt-1">{{ formatPrice(request.quoted_price) }}</p>
+                    }
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                  {{ formatDate(request.created_at) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div class="flex items-center justify-end space-x-2">
+                    @if (request.pricing_status === 'pending' || request.pricing_status === 'rejected') {
+                      <button
+                        (click)="openQuoteModal(request)"
+                        class="text-blue-600 hover:text-blue-900"
+                        title="Citer un prix"
+                      >
+                        💰
+                      </button>
+                    }
+                    <button
+                      (click)="openStatusModal(request)"
+                      class="text-green-600 hover:text-green-900"
+                      title="Modifier le statut"
+                    >
+                      ✏️
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Quote Modal -->
+  @if (showQuoteModal) {
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" (click)="closeQuoteModal()">
+      <div class="bg-white rounded-xl shadow-xl max-w-md w-full" (click)="$event.stopPropagation()">
+        <div class="p-6 border-b border-slate-200">
+          <h3 class="text-xl font-bold text-slate-900">Citer un prix</h3>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Prix (FCFA) <span class="text-red-500">*</span></label>
+            <input
+              type="number"
+              [(ngModel)]="quoteForm.quoted_price"
+              min="0"
+              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Notes</label>
+            <textarea
+              [(ngModel)]="quoteForm.notes"
+              rows="3"
+              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            ></textarea>
+          </div>
+        </div>
+        <div class="p-6 border-t border-slate-200 flex justify-end space-x-3">
+          <button
+            (click)="closeQuoteModal()"
+            class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+          >
+            Annuler
+          </button>
+          <button
+            (click)="submitQuote()"
+            [disabled]="!quoteForm.quoted_price"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+          >
+            Envoyer le devis
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Status Modal -->
+  @if (showStatusModal) {
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" (click)="closeStatusModal()">
+      <div class="bg-white rounded-xl shadow-xl max-w-md w-full" (click)="$event.stopPropagation()">
+        <div class="p-6 border-b border-slate-200">
+          <h3 class="text-xl font-bold text-slate-900">Modifier le statut</h3>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Statut <span class="text-red-500">*</span></label>
+            <select
+              [(ngModel)]="statusForm.status"
+              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              required
+            >
+              <option value="pending">En attente</option>
+              <option value="in_progress">En cours</option>
+              <option value="completed">Terminé</option>
+              <option value="cancelled">Annulé</option>
+              <option value="on_hold">En pause</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Notes</label>
+            <textarea
+              [(ngModel)]="statusForm.notes"
+              rows="3"
+              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            ></textarea>
+          </div>
+        </div>
+        <div class="p-6 border-t border-slate-200 flex justify-end space-x-3">
+          <button
+            (click)="closeStatusModal()"
+            class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+          >
+            Annuler
+          </button>
+          <button
+            (click)="submitStatus()"
+            [disabled]="!statusForm.status"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+          >
+            Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+

@@ -1,72 +1,155 @@
-<div class="space-y-8">
-  <div>
-    <h1 class="text-4xl font-display font-bold text-gray-900 mb-2">Rechercher un bien</h1>
-    <p class="text-gray-600">Découvrez notre sélection de biens immobiliers au Bénin</p>
-  </div>
-  
-  <!-- Filters (à implémenter) -->
-  <div class="card">
-    <p class="text-gray-600">Filtres de recherche - À implémenter</p>
-  </div>
-  
-  @if (loading) {
-    <div class="flex justify-center items-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-    </div>
-  } @else if (properties.length === 0) {
-    <div class="card text-center py-12">
-      <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <span class="text-5xl">🔍</span>
+<div class="space-y-6 sm:space-y-8">
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+    <a 
+      routerLink="/buyer/properties"
+      class="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6 hover:shadow-xl transition-all block"
+    >
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs sm:text-sm text-slate-600 mb-1">Biens disponibles</p>
+          <p class="text-2xl sm:text-3xl font-bold text-slate-900">{{ availablePropertiesCount }}</p>
+        </div>
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+          </svg>
+        </div>
       </div>
-      <h3 class="text-2xl font-bold text-gray-900 mb-2">Aucun bien disponible</h3>
-      <p class="text-gray-600">Il n'y a pas encore de biens sur la plateforme</p>
+    </a>
+
+    <a 
+      routerLink="/buyer/requests"
+      class="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6 hover:shadow-xl transition-all block"
+    >
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs sm:text-sm text-slate-600 mb-1">Demandes d'intérêts</p>
+          <p class="text-2xl sm:text-3xl font-bold text-slate-900">{{ myRequestsCount }}</p>
+        </div>
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+          </svg>
+        </div>
+      </div>
+    </a>
+
+    <a 
+      routerLink="/buyer/services"
+      class="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6 hover:shadow-xl transition-all block"
+    >
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs sm:text-sm text-slate-600 mb-1">Demandes de service</p>
+          <p class="text-2xl sm:text-3xl font-bold text-slate-900">{{ myServiceRequestsCount }}</p>
+        </div>
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+      </div>
+    </a>
+
+    <a 
+      routerLink="/buyer/properties"
+      class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg border border-blue-500 p-4 sm:p-6 text-white hover:from-blue-700 hover:to-blue-800 transition-all"
+    >
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs sm:text-sm text-blue-100 mb-1">Rechercher</p>
+          <p class="text-xl sm:text-2xl font-bold">Biens</p>
+        </div>
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Recent Properties -->
+  <div>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-2 sm:gap-0">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">Biens récents</h2>
+        <p class="text-sm sm:text-base text-slate-600 mt-1">Découvrez les dernières propriétés ajoutées</p>
+      </div>
+      <a 
+        routerLink="/buyer/properties"
+        class="text-blue-600 hover:text-blue-700 font-semibold text-sm self-start sm:self-auto"
+      >
+        Voir tout →
+      </a>
     </div>
-  } @else {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      @for (property of properties; track property.id) {
-        <a [routerLink]="['/properties', property.id]" class="card group block hover:shadow-large transition-all">
-          <div class="relative h-56 mb-4 rounded-lg overflow-hidden">
-            @if (property.images && property.images.length > 0) {
-              <img 
-                [src]="'http://localhost:8000/storage/' + property.images[0].file_path" 
-                [alt]="property.title"
-                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-            } @else {
-              <div class="w-full h-full bg-gray-100 flex items-center justify-center">
-                <span class="text-5xl text-gray-400">🏠</span>
-              </div>
-            }
-            @if (property.is_verified) {
-              <span class="absolute top-3 right-3 px-3 py-1 bg-green-500 text-white rounded-full text-xs font-semibold">
-                ✓ Vérifié
-              </span>
-            }
-          </div>
-          
-          <div class="space-y-2">
-            <h3 class="text-xl font-bold text-gray-900 line-clamp-2 group-hover:text-primary-600 transition-colors">
-              {{ property.title }}
-            </h3>
-            <p class="text-2xl font-bold text-primary-600">{{ property.price | number }} FCFA</p>
-            <div class="flex items-center text-sm text-gray-600 space-x-4">
-              <span>{{ property.surface_area }} m²</span>
-              <span>•</span>
-              <span>{{ property.rooms || 0 }} pièces</span>
-              @if (property.bedrooms) {
-                <span>•</span>
-                <span>{{ property.bedrooms }} chambres</span>
+
+    @if (loading) {
+      <div class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    } @else if (properties.length === 0) {
+      <div class="bg-white rounded-xl shadow-lg border border-slate-200 text-center py-16 px-6">
+        <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <span class="text-5xl">🔍</span>
+        </div>
+        <h3 class="text-2xl font-bold text-slate-900 mb-2">Aucun bien disponible</h3>
+        <p class="text-slate-600 mb-8 max-w-md mx-auto">Il n'y a pas encore de biens sur la plateforme</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        @for (property of properties; track property.id) {
+          <a 
+            [routerLink]="['/buyer/properties', property.id]" 
+            class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-all group block"
+          >
+            <div class="relative h-40 sm:h-48 overflow-hidden">
+              @if (getPropertyImageUrl(property)) {
+                <img 
+                  [src]="getPropertyImageUrl(property)" 
+                  [alt]="property.title"
+                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                />
+              } @else {
+                <div class="w-full h-full bg-slate-100 flex items-center justify-center">
+                  <span class="text-5xl text-slate-400">🏠</span>
+                </div>
+              }
+              @if (property.is_verified) {
+                <span class="absolute top-3 right-3 px-3 py-1 bg-green-500 text-white rounded-full text-xs font-semibold">
+                  ✓ Vérifié
+                </span>
               }
             </div>
-            @if (property.address) {
-              <p class="text-sm text-gray-500 flex items-center mt-2">
-                <span class="mr-1">📍</span>
-                {{ property.address.commune?.name }}, {{ property.address.department?.name }}
-              </p>
-            }
-          </div>
-        </a>
-      }
-    </div>
-  }
+            
+            <div class="p-3 sm:p-4 space-y-2">
+              <h3 class="text-lg sm:text-xl font-bold text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                {{ property.title }}
+              </h3>
+              <p class="text-xl sm:text-2xl font-bold text-blue-600">{{ property.price | number }} FCFA</p>
+              <div class="flex items-center text-xs sm:text-sm text-slate-600 space-x-2 sm:space-x-4 flex-wrap">
+                <span>{{ property.surface_area }} m²</span>
+                <span>•</span>
+                <span>{{ property.rooms || 0 }} pièces</span>
+                @if (property.bedrooms) {
+                  <span>•</span>
+                  <span>{{ property.bedrooms }} chambres</span>
+                }
+              </div>
+              @if (property.address) {
+                <p class="text-sm text-slate-500 flex items-center mt-2">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                  {{ property.address.commune?.name }}, {{ property.address.department?.name }}
+                </p>
+              }
+            </div>
+          </a>
+        }
+      </div>
+    }
+  </div>
 </div>

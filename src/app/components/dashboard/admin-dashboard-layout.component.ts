@@ -5,6 +5,7 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { PropertyService } from '../../services/property.service';
+import { PropertyInterestService } from '../../services/property-interest.service';
 
 @Component({
   selector: 'app-admin-dashboard-layout',
@@ -18,6 +19,7 @@ export class AdminDashboardLayoutComponent implements OnInit {
   private router = inject(Router);
   private userService = inject(UserService);
   private propertyService = inject(PropertyService);
+  private interestService = inject(PropertyInterestService);
   
   currentUser$ = this.authService.currentUser$;
   sidebarOpen = true;
@@ -25,6 +27,7 @@ export class AdminDashboardLayoutComponent implements OnInit {
   // Quick stats
   pendingSellersCount = 0;
   pendingPropertiesCount = 0;
+  pendingRequestsCount = 0;
   currentDate = new Date();
   searchQuery = '';
 
@@ -34,6 +37,11 @@ export class AdminDashboardLayoutComponent implements OnInit {
     setInterval(() => {
       this.currentDate = new Date();
     }, 60000);
+    
+    // Refresh stats every 30 seconds
+    setInterval(() => {
+      this.loadQuickStats();
+    }, 30000);
   }
 
   loadQuickStats(): void {
@@ -47,10 +55,43 @@ export class AdminDashboardLayoutComponent implements OnInit {
     });
 
     // Load pending properties count
-    this.propertyService.getProperties({ status: 'pending_verification', per_page: 1 }).subscribe({
+    // On compte uniquement les biens qui sont vraiment en attente de validation
+    // C'est-à-dire ceux qui ont status='pending_verification' ET is_verified=false
+    this.propertyService.getProperties({ status: 'pending_verification', is_verified: false, per_page: 1 }).subscribe({
       next: (response) => {
         if (response.success) {
-          this.pendingPropertiesCount = response.data?.total || response.data?.data?.length || 0;
+          // Handle paginated response
+          if (response.data?.total !== undefined) {
+            this.pendingPropertiesCount = response.data.total;
+          } else if (Array.isArray(response.data)) {
+            // Filtrer pour ne garder que ceux vraiment en attente (non vérifiés)
+            this.pendingPropertiesCount = response.data.filter((p: any) => {
+              return p.status === 'pending_verification' && p.is_verified === false;
+            }).length;
+          } else if (response.data?.data) {
+            this.pendingPropertiesCount = response.data.data.filter((p: any) => {
+              return p.status === 'pending_verification' && p.is_verified === false;
+            }).length;
+          } else {
+            this.pendingPropertiesCount = 0;
+          }
+        }
+      }
+    });
+
+    // Load pending requests count
+    this.interestService.getInterests({ status: 'pending', per_page: 1 }).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          if (response.data?.total !== undefined) {
+            this.pendingRequestsCount = response.data.total;
+          } else if (Array.isArray(response.data)) {
+            this.pendingRequestsCount = response.data.length;
+          } else if (response.data?.data) {
+            this.pendingRequestsCount = response.data.data.length;
+          } else {
+            this.pendingRequestsCount = 0;
+          }
         }
       }
     });

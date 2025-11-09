@@ -1,0 +1,333 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-3xl font-bold text-slate-900">Services immobiliers</h2>
+      <p class="text-slate-600 mt-1">Découvrez nos services et gérez vos demandes</p>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="bg-white rounded-xl shadow-sm border border-slate-200">
+    <div class="flex border-b border-slate-200">
+      <button
+        (click)="activeTab = 'available'"
+        [class]="'px-6 py-4 font-semibold text-sm border-b-2 transition-colors ' + 
+          (activeTab === 'available' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700')"
+      >
+        Services disponibles
+      </button>
+      <button
+        (click)="activeTab = 'requests'"
+        [class]="'px-6 py-4 font-semibold text-sm border-b-2 transition-colors ' + 
+          (activeTab === 'requests' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700')"
+      >
+        Mes demandes ({{ serviceRequests.length }})
+      </button>
+    </div>
+
+    <!-- Services disponibles -->
+    @if (activeTab === 'available') {
+      <div class="p-6">
+        <!-- Filters -->
+        <div class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Recherche</label>
+            <input
+              type="text"
+              [(ngModel)]="filters.search"
+              (ngModelChange)="loadServices()"
+              placeholder="Nom du service..."
+              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Catégorie</label>
+            <select
+              [(ngModel)]="filters.category"
+              (ngModelChange)="loadServices()"
+              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            >
+              <option value="">Toutes</option>
+              <option value="basic">Basique</option>
+              <option value="premium">Premium</option>
+              <option value="custom">Personnalisé</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Type de tarif</label>
+            <select
+              [(ngModel)]="filters.pricing_type"
+              (ngModelChange)="loadServices()"
+              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            >
+              <option value="">Tous</option>
+              <option value="free">Gratuit</option>
+              <option value="fixed">Fixe</option>
+              <option value="negotiable">Négociable</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Services Grid -->
+        @if (loadingServices) {
+          <div class="flex items-center justify-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        } @else if (services.length === 0) {
+          <div class="text-center py-12 text-slate-500">
+            Aucun service disponible
+          </div>
+        } @else {
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @for (service of services; track service.id) {
+              <div class="bg-slate-50 rounded-xl p-6 border border-slate-200 hover:shadow-lg transition-shadow">
+                <div class="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-1">{{ service.name }}</h3>
+                    <span class="px-2 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-800">
+                      {{ getCategoryLabel(service.category) }}
+                    </span>
+                    @if (service.is_featured) {
+                      <span class="ml-2 px-2 py-1 text-xs font-semibold rounded bg-yellow-100 text-yellow-800">⭐ En vedette</span>
+                    }
+                  </div>
+                </div>
+                @if (service.description) {
+                  <p class="text-sm text-slate-600 mb-4 line-clamp-3">{{ service.description }}</p>
+                }
+                <div class="space-y-2 mb-4">
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-slate-600">Tarif:</span>
+                    <span class="font-semibold text-slate-900">
+                      {{ service.pricing_type === 'free' ? 'Gratuit' : (service.price | number) + ' FCFA' }}
+                    </span>
+                  </div>
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-slate-600">Type:</span>
+                    <span class="text-slate-700">{{ getPricingTypeLabel(service.pricing_type) }}</span>
+                  </div>
+                  @if (service.duration_days) {
+                    <div class="flex items-center justify-between text-sm">
+                      <span class="text-slate-600">Durée:</span>
+                      <span class="text-slate-700">{{ service.duration_days }} jour(s)</span>
+                    </div>
+                  }
+                </div>
+                <button
+                  (click)="openRequestModal(service)"
+                  class="w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Demander ce service
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Mes demandes -->
+    @if (activeTab === 'requests') {
+      <div class="p-6">
+        <!-- Filters -->
+        <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Recherche</label>
+            <input
+              type="text"
+              [(ngModel)]="requestFilters.search"
+              (ngModelChange)="loadServiceRequests()"
+              placeholder="Rechercher..."
+              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Statut</label>
+            <select
+              [(ngModel)]="requestFilters.status"
+              (ngModelChange)="loadServiceRequests()"
+              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            >
+              <option value="">Tous</option>
+              <option value="pending">En attente</option>
+              <option value="in_progress">En cours</option>
+              <option value="completed">Terminé</option>
+              <option value="cancelled">Annulé</option>
+              <option value="on_hold">En pause</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Requests Table -->
+        @if (loadingRequests) {
+          <div class="flex items-center justify-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        } @else if (serviceRequests.length === 0) {
+          <div class="text-center py-12 text-slate-500">
+            Aucune demande de service
+          </div>
+        } @else {
+          <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+            <table class="min-w-full divide-y divide-slate-200">
+              <thead class="bg-slate-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Service</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Propriété</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Statut</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Devis</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Date</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-slate-200">
+                @for (request of serviceRequests; track request.id) {
+                  <tr class="hover:bg-slate-50">
+                    <td class="px-6 py-4">
+                      <div>
+                        <span class="text-sm font-medium text-slate-900">{{ request.service?.name || '-' }}</span>
+                        @if (request.description) {
+                          <p class="text-xs text-slate-500 mt-1 line-clamp-2">{{ request.description }}</p>
+                        }
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                      {{ request.property ? (request.property.title || 'Propriété #' + request.property.id) : 'Aucune' }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span [class]="'px-2 py-1 text-xs font-semibold rounded ' + getStatusClass(request.status)">
+                        {{ getStatusLabel(request.status) }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm">
+                        <span [class]="'px-2 py-1 text-xs font-semibold rounded ' + getPricingStatusClass(request.pricing_status)">
+                          {{ getPricingStatusLabel(request.pricing_status) }}
+                        </span>
+                        @if (request.quoted_price) {
+                          <p class="text-xs text-slate-500 mt-1">{{ formatPrice(request.quoted_price) }}</p>
+                        }
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                      {{ formatDate(request.created_at) }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      @if (request.status === 'pending') {
+                        <button
+                          (click)="cancelRequest(request.id)"
+                          class="text-red-600 hover:text-red-900"
+                        >
+                          Annuler
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Modal de demande -->
+  @if (showRequestModal) {
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" (click)="closeRequestModal()">
+      <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+        <div class="p-6 border-b border-slate-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-slate-900">Demander: {{ selectedService?.name }}</h3>
+            <button
+              (click)="closeRequestModal()"
+              class="text-slate-400 hover:text-slate-600"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="p-6 space-y-4">
+          @if (selectedService) {
+            <div class="bg-blue-50 rounded-lg p-4 mb-4">
+              <p class="text-sm text-blue-900">
+                <strong>Tarif:</strong> {{ selectedService.pricing_type === 'free' ? 'Gratuit' : (selectedService.price | number) + ' FCFA' }}
+                @if (selectedService.duration_days) {
+                  <br><strong>Durée estimée:</strong> {{ selectedService.duration_days }} jour(s)
+                }
+              </p>
+            </div>
+          }
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Propriété (optionnel)</label>
+            <select
+              [(ngModel)]="requestForm.property_id"
+              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            >
+              <option [value]="null">Aucune propriété</option>
+              @for (property of myProperties; track property.id) {
+                <option [value]="property.id">{{ property.title || 'Propriété #' + property.id }}</option>
+              }
+            </select>
+            <p class="text-xs text-slate-500 mt-1">Vous pouvez lier cette demande à une de vos propriétés</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">
+              Description <span class="text-red-500">*</span>
+              <span class="text-xs text-slate-500 font-normal ml-2">
+                (minimum 10 caractères - {{ requestForm.description.length || 0 }}/10)
+              </span>
+            </label>
+            <textarea
+              [(ngModel)]="requestForm.description"
+              rows="5"
+              placeholder="Décrivez votre besoin en détail (minimum 10 caractères)..."
+              [class]="'w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ' + 
+                (validationErrors.description ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-300')"
+              required
+            ></textarea>
+            @if (validationErrors.description) {
+              <p class="text-xs text-red-600 mt-1">
+                @if (isArray(validationErrors.description)) {
+                  {{ validationErrors.description[0] }}
+                } @else {
+                  {{ validationErrors.description }}
+                }
+              </p>
+            } @else {
+              <p class="text-xs text-slate-500 mt-1">Décrivez votre besoin en détail pour que nous puissions mieux vous aider</p>
+            }
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Exigences particulières (optionnel)</label>
+            <textarea
+              [(ngModel)]="requestForm.requirements"
+              rows="3"
+              placeholder="Précisez vos exigences ou contraintes..."
+              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            ></textarea>
+          </div>
+        </div>
+        <div class="p-6 border-t border-slate-200 flex justify-end space-x-3">
+          <button
+            (click)="closeRequestModal()"
+            class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+          >
+            Annuler
+          </button>
+          <button
+            (click)="submitRequest()"
+            [disabled]="submittingRequest || !requestForm.description.trim() || (requestForm.description.trim().length < 10)"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+          >
+            {{ submittingRequest ? 'Envoi...' : 'Envoyer la demande' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+

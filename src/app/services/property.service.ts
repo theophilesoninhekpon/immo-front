@@ -39,8 +39,16 @@ export class PropertyService {
     return this.http.delete(`${this.apiUrl}/properties/${id}`);
   }
 
-  getMyProperties(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/properties/my-properties`);
+  getMyProperties(params?: any): Observable<any> {
+    let httpParams = new HttpParams();
+    if (params) {
+      Object.keys(params).forEach(key => {
+        if (params[key] !== null && params[key] !== undefined && params[key] !== '') {
+          httpParams = httpParams.set(key, params[key].toString());
+        }
+      });
+    }
+    return this.http.get(`${this.apiUrl}/properties/my-properties`, { params: httpParams });
   }
 
   verifyProperty(id: number): Observable<any> {

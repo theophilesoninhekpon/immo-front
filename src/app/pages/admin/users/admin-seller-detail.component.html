@@ -1,0 +1,297 @@
+<div class="min-h-screen bg-slate-50 py-8 px-4">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900 mb-2">Détails du vendeur</h1>
+        <p class="text-slate-600">Gérez la vérification du vendeur et de ses documents</p>
+      </div>
+      <a
+        [routerLink]="['/admin/sellers']"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition-colors"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Retour à la liste
+      </a>
+    </div>
+
+    @if (loading) {
+      <div class="text-center py-12">
+        <p class="text-slate-500">Chargement...</p>
+      </div>
+    } @else if (seller) {
+      <!-- Statut de vérification -->
+      <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 mb-6">
+        <div class="flex items-center justify-between">
+          <div class="flex-1">
+            <h2 class="text-xl font-bold text-slate-900 mb-2">Statut de vérification</h2>
+            <p class="text-slate-600 mb-4">
+              @if (seller.verification_status === 'verified') {
+                Ce vendeur est vérifié et peut créer des biens immobiliers.
+              } @else if (seller.verification_status === 'pending') {
+                Ce vendeur est en attente de vérification. Vérifiez tous ses documents avant de valider.
+                @if (hasPendingDocuments()) {
+                  <span class="block mt-2 text-yellow-600 font-semibold">⚠️ Des documents sont encore en attente de vérification</span>
+                }
+              } @else if (seller.verification_status === 'rejected') {
+                Ce vendeur a été rejeté.
+                @if (seller.rejection_reason) {
+                  <span class="block mt-2 text-red-600 font-semibold">Raison : {{ seller.rejection_reason }}</span>
+                }
+              }
+            </p>
+            @if (seller.verified_at) {
+              <p class="text-sm text-slate-500">
+                Vérifié le {{ seller.verified_at | date:'dd/MM/yyyy à HH:mm' }}
+                @if (seller.verified_by_user) {
+                  par {{ seller.verified_by_user.name }} {{ seller.verified_by_user.first_name }}
+                }
+              </p>
+            }
+          </div>
+          <div class="ml-6">
+            <span class="px-4 py-2 rounded-lg font-semibold {{ getVerificationStatusClass() }}">
+              {{ getVerificationStatusLabel() }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Actions admin -->
+        @if (seller.verification_status === 'pending') {
+          <div class="mt-6 pt-6 border-t border-slate-200 flex items-center gap-4">
+            <button
+              (click)="verifyUser()"
+              [disabled]="verifyingUser || hasPendingDocuments()"
+              class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-lg hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              title="{{ hasPendingDocuments() ? 'Tous les documents doivent être vérifiés avant de valider le vendeur' : '' }}"
+            >
+              @if (verifyingUser) {
+                <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Vérification...
+              } @else {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Valider le vendeur
+              }
+            </button>
+            <button
+              (click)="rejectUserPrompt()"
+              [disabled]="rejectingUser"
+              class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-lg hover:from-red-700 hover:to-red-800 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+              Rejeter le vendeur
+            </button>
+          </div>
+        }
+
+        <!-- Modal de rejet du vendeur -->
+        @if (rejectingUser) {
+          <div class="mt-6 pt-6 border-t border-slate-200 p-4 bg-red-50 rounded-lg">
+            <h3 class="font-semibold text-red-900 mb-2">Raison du rejet</h3>
+            <textarea
+              [(ngModel)]="rejectionReason"
+              placeholder="Expliquez pourquoi ce vendeur est rejeté..."
+              rows="3"
+              class="w-full px-3 py-2 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 mb-3"
+            ></textarea>
+            <div class="flex items-center gap-2">
+              <button
+                (click)="confirmRejectUser()"
+                [disabled]="!rejectionReason.trim()"
+                class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Confirmer le rejet
+              </button>
+              <button
+                (click)="cancelReject()"
+                class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition-colors"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Informations personnelles -->
+      <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 mb-6">
+        <h2 class="text-xl font-bold text-slate-900 mb-4">Informations personnelles</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Nom</label>
+            <p class="text-slate-900">{{ seller.name || '-' }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Prénom</label>
+            <p class="text-slate-900">{{ seller.first_name || '-' }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <p class="text-slate-900">{{ seller.email || '-' }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Téléphone</label>
+            <p class="text-slate-900">{{ seller.phone || '-' }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Date d'inscription</label>
+            <p class="text-slate-900">{{ seller.created_at | date:'dd/MM/yyyy' }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Statut du compte</label>
+            <p class="text-slate-900">
+              <span class="px-2 py-1 rounded text-xs font-semibold" [class.bg-green-100]="seller.is_active" [class.text-green-800]="seller.is_active" [class.bg-red-100]="!seller.is_active" [class.text-red-800]="!seller.is_active">
+                {{ seller.is_active ? 'Actif' : 'Inactif' }}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents de vérification -->
+      <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 mb-2">Documents de vérification</h2>
+            <p class="text-sm text-slate-600">
+              Vérifiez tous les documents du vendeur. Tous les documents doivent être vérifiés avant de valider le vendeur.
+            </p>
+            @if (hasPendingDocuments()) {
+              <p class="text-sm text-yellow-600 font-semibold mt-2">
+                ⚠️ {{ getPendingDocumentsCount() }} document(s) en attente de vérification
+              </p>
+            } @else if (allDocumentsVerified() && documents.length > 0) {
+              <p class="text-sm text-green-600 font-semibold mt-2">
+                ✓ Tous les documents sont vérifiés
+              </p>
+            }
+          </div>
+        </div>
+
+        <!-- Liste des documents -->
+        @if (documents.length === 0) {
+          <div class="text-center py-8 border-2 border-dashed border-slate-300 rounded-lg">
+            <p class="text-slate-500">Aucun document uploadé</p>
+          </div>
+        } @else {
+          <div class="space-y-3">
+            @for (document of documents; track document.id) {
+              <div class="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-4 flex-1">
+                  <div class="p-2 bg-blue-100 rounded-lg">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-semibold text-slate-900">{{ document.name }}</p>
+                    <div class="flex items-center gap-3 mt-1 flex-wrap">
+                      @if (document.document_type) {
+                        <span class="text-sm text-slate-600">{{ document.document_type.name }}</span>
+                      }
+                      <span class="text-sm text-slate-500">{{ formatFileSize(document.file_size) }}</span>
+                      <span class="px-2 py-1 rounded text-xs font-semibold {{ getStatusClass(document.status || (document.is_verified ? 'verified' : 'pending')) }}">
+                        {{ getStatusLabel(document.status || (document.is_verified ? 'verified' : 'pending')) }}
+                      </span>
+                      @if (document.verified_at) {
+                        <span class="text-xs text-slate-500">
+                          Vérifié le {{ document.verified_at | date:'dd/MM/yyyy' }}
+                        </span>
+                      }
+                    </div>
+                    @if (document.description) {
+                      <p class="text-sm text-slate-500 mt-1">{{ document.description }}</p>
+                    }
+                    @if (document.rejection_reason) {
+                      <p class="text-sm text-red-600 mt-1 font-semibold">Raison du rejet : {{ document.rejection_reason }}</p>
+                    }
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <a 
+                    [href]="getDocumentUrl(document)" 
+                    [download]="document.name"
+                    target="_blank"
+                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    title="Télécharger"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                  </a>
+                  @if (!document.is_verified && document.status !== 'rejected') {
+                    <button
+                      (click)="verifyDocument(document.id)"
+                      [disabled]="verifyingDocumentId === document.id"
+                      class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
+                      title="Vérifier"
+                    >
+                      @if (verifyingDocumentId === document.id) {
+                        <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      } @else {
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      }
+                    </button>
+                    <button
+                      (click)="rejectDocumentPrompt(document.id)"
+                      [disabled]="rejectingDocumentId === document.id"
+                      class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                      title="Rejeter"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Modal de rejet du document -->
+              @if (rejectingDocumentId === document.id) {
+                <div class="ml-16 p-4 bg-red-50 rounded-lg border border-red-200">
+                  <h3 class="font-semibold text-red-900 mb-2">Raison du rejet</h3>
+                  <textarea
+                    [(ngModel)]="documentRejectionReason"
+                    placeholder="Expliquez pourquoi ce document est rejeté..."
+                    rows="3"
+                    class="w-full px-3 py-2 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 mb-3"
+                  ></textarea>
+                  <div class="flex items-center gap-2">
+                    <button
+                      (click)="confirmRejectDocument()"
+                      [disabled]="!documentRejectionReason.trim()"
+                      class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Confirmer le rejet
+                    </button>
+                    <button
+                      (click)="cancelRejectDocument()"
+                      class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition-colors"
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+

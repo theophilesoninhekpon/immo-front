@@ -16,6 +16,7 @@ export class HeaderComponent {
   private router = inject(Router);
   
   currentUser$ = this.authService.currentUser$;
+  mobileMenuOpen = false;
 
   logout(): void {
     this.authService.logout();
@@ -24,6 +25,14 @@ export class HeaderComponent {
 
   hasRole(role: string): boolean {
     return this.authService.hasRole(role);
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
   }
 }
 

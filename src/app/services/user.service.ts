@@ -40,7 +40,7 @@ export class UserService {
   }
 
   verifyUser(id: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/users/${id}/verify`, {});
+    return this.http.patch(`${this.apiUrl}/users/${id}/verify`, {});
   }
 
   rejectUser(id: number, reason: string): Observable<any> {
@@ -61,6 +61,44 @@ export class UserService {
 
   getUserProperties(userId: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/users/${userId}/properties`);
+  }
+
+  // Documents utilisateurs
+  uploadUserDocuments(userId: number, documents: File[], metadata?: any[]): Observable<any> {
+    const formData = new FormData();
+    
+    documents.forEach((document, index) => {
+      formData.append(`documents[${index}]`, document);
+      if (metadata && metadata[index]) {
+        if (metadata[index].document_type_id) {
+          formData.append(`documents[${index}][document_type_id]`, metadata[index].document_type_id.toString());
+        }
+        if (metadata[index].name) {
+          formData.append(`documents[${index}][name]`, metadata[index].name);
+        }
+        if (metadata[index].description) {
+          formData.append(`documents[${index}][description]`, metadata[index].description);
+        }
+      }
+    });
+
+    return this.http.post(`${this.apiUrl}/users/${userId}/documents`, formData);
+  }
+
+  getUserDocuments(userId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/users/${userId}/documents`);
+  }
+
+  deleteUserDocument(userId: number, documentId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/users/${userId}/documents/${documentId}`);
+  }
+
+  verifyUserDocument(userId: number, documentId: number, notes?: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/users/${userId}/documents/${documentId}/verify`, { notes });
+  }
+
+  rejectUserDocument(userId: number, documentId: number, reason: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/users/${userId}/documents/${documentId}/reject`, { rejection_reason: reason });
   }
 }
 

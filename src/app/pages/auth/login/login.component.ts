@@ -20,12 +20,17 @@ export class LoginComponent {
   loginForm: FormGroup;
   error: string = '';
   loading = false;
+  showPassword = false;
 
   constructor() {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]]
     });
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   onSubmit(): void {

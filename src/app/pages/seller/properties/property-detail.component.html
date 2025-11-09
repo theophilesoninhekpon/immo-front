@@ -84,6 +84,72 @@
           </span>
         }
       </div>
+
+      <!-- Admin Validation Section -->
+      @if (isAdmin && !property.is_verified) {
+        @let mediaStatus = getMediaStatus();
+        <div class="mb-6">
+          @if (mediaStatus.allVerified) {
+            <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-lg">
+              <div class="flex items-start">
+                <div class="flex-shrink-0">
+                  <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <div class="ml-4 flex-1">
+                  <h3 class="text-lg font-semibold text-green-800 mb-2">Tous les médias sont validés</h3>
+                  <p class="text-green-700 mb-4">Vous pouvez maintenant valider ce bien immobilier.</p>
+                  <button
+                    (click)="verifyProperty()"
+                    [disabled]="verifyingProperty"
+                    class="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-lg hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    @if (verifyingProperty) {
+                      <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Validation en cours...</span>
+                    } @else {
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span>Valider le bien</span>
+                    }
+                  </button>
+                </div>
+              </div>
+            </div>
+          } @else {
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-lg">
+              <div class="flex items-start">
+                <div class="flex-shrink-0">
+                  <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                  </svg>
+                </div>
+                <div class="ml-4 flex-1">
+                  <h3 class="text-lg font-semibold text-yellow-800 mb-2">Validation des médias requise</h3>
+                  <p class="text-yellow-700 mb-3">Avant de valider ce bien, vous devez valider tous les documents et images associés :</p>
+                  <ul class="list-disc list-inside text-yellow-700 space-y-1 mb-4">
+                    @if (mediaStatus.pendingImages > 0) {
+                      <li>{{ mediaStatus.pendingImages }} image(s) en attente de validation</li>
+                    }
+                    @if (mediaStatus.pendingDocuments > 0) {
+                      <li>{{ mediaStatus.pendingDocuments }} document(s) en attente de validation</li>
+                    }
+                    @if (mediaStatus.rejectedImages > 0) {
+                      <li>{{ mediaStatus.rejectedImages }} image(s) rejetée(s) - à corriger</li>
+                    }
+                    @if (mediaStatus.rejectedDocuments > 0) {
+                      <li>{{ mediaStatus.rejectedDocuments }} document(s) rejeté(s) - à corriger</li>
+                    }
+                  </ul>
+                  <p class="text-sm text-yellow-600 italic">Veuillez valider ou rejeter tous les médias ci-dessous avant de pouvoir valider le bien.</p>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -103,12 +169,10 @@
               <div class="text-2xl font-bold text-blue-600">{{ property.surface_area }}</div>
               <div class="text-sm text-slate-600">m²</div>
             </div>
-            @if (property.rooms) {
-              <div class="text-center p-4 bg-slate-50 rounded-lg">
-                <div class="text-2xl font-bold text-blue-600">{{ property.rooms }}</div>
-                <div class="text-sm text-slate-600">Pièces</div>
-              </div>
-            }
+            <div class="text-center p-4 bg-slate-50 rounded-lg">
+              <div class="text-2xl font-bold text-blue-600">{{ property.rooms || '-' }}</div>
+              <div class="text-sm text-slate-600">Pièces</div>
+            </div>
             @if (property.bedrooms) {
               <div class="text-center p-4 bg-slate-50 rounded-lg">
                 <div class="text-2xl font-bold text-blue-600">{{ property.bedrooms }}</div>

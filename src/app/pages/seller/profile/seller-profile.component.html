@@ -1,0 +1,262 @@
+<div class="min-h-screen bg-slate-50 py-8 px-4">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-slate-900 mb-2">Mon Profil</h1>
+      <p class="text-slate-600">Gérez vos informations et vos documents de vérification</p>
+    </div>
+
+    <!-- Redirect Message -->
+    @if (redirectMessage) {
+      <div class="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg">
+        <div class="flex items-start">
+          <svg class="w-5 h-5 text-yellow-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+          <div class="flex-1">
+            <p class="text-sm font-medium text-yellow-800">{{ redirectMessage }}</p>
+          </div>
+          <button
+            (click)="redirectMessage = null"
+            class="ml-4 text-yellow-500 hover:text-yellow-700"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Statut de vérification -->
+    @if (verificationStatus) {
+      <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 mb-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 mb-2">Statut de vérification</h2>
+            <p class="text-slate-600 mb-4">
+              @if (verificationStatus.verification_status === 'verified') {
+                Votre compte est vérifié. Vous pouvez maintenant créer des biens immobiliers.
+              } @else if (verificationStatus.verification_status === 'pending') {
+                Votre compte est en attente de vérification. Veuillez uploader tous les documents requis et attendre la validation par un administrateur.
+              } @else if (verificationStatus.verification_status === 'rejected') {
+                Votre compte a été rejeté. Veuillez vérifier les raisons du rejet et soumettre à nouveau vos documents.
+                @if (verificationStatus.rejection_reason) {
+                  <span class="block mt-2 text-red-600 font-semibold">Raison : {{ verificationStatus.rejection_reason }}</span>
+                }
+              }
+            </p>
+          </div>
+          <span class="px-4 py-2 rounded-lg font-semibold {{ getVerificationStatusClass() }}">
+            {{ getVerificationStatusLabel() }}
+          </span>
+        </div>
+      </div>
+    }
+
+    <!-- Informations personnelles -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 mb-6">
+      <h2 class="text-xl font-bold text-slate-900 mb-4">Informations personnelles</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Nom</label>
+          <p class="text-slate-900">{{ currentUser?.name || '-' }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Prénom</label>
+          <p class="text-slate-900">{{ currentUser?.first_name || '-' }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <p class="text-slate-900">{{ currentUser?.email || '-' }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Téléphone</label>
+          <p class="text-slate-900">{{ currentUser?.phone || '-' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents de vérification -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 mb-2">Documents de vérification</h2>
+          <p class="text-sm text-slate-600">
+            Uploader vos documents d'identité et autres documents requis pour la vérification de votre compte.
+          </p>
+        </div>
+        @if (!canCreateProperties()) {
+          <button 
+            (click)="addDocumentForm()"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all duration-200"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Ajouter un document
+          </button>
+        }
+      </div>
+
+      <!-- Formulaires de documents -->
+      @if (documentForms.length > 0) {
+        <div class="mb-6 space-y-4">
+          @for (form of documentForms; track $index) {
+            <div class="p-4 bg-slate-50 rounded-xl border-2 border-dashed border-blue-300">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-sm font-semibold text-slate-900">Document {{ $index + 1 }}</h4>
+                <button 
+                  (click)="removeDocumentForm($index)"
+                  class="text-sm text-red-600 hover:text-red-700 font-medium"
+                >
+                  Retirer
+                </button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-1">Fichier <span class="text-red-500">*</span></label>
+                  <label 
+                    [for]="'document-file-' + $index"
+                    class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 w-full border-2 border-dashed border-slate-300 rounded-lg hover:border-blue-500 transition-colors"
+                  >
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    <span class="text-sm text-slate-600">
+                      @if (form.file) {
+                        {{ form.file.name }}
+                      } @else {
+                        Sélectionner un fichier
+                      }
+                    </span>
+                  </label>
+                  <input 
+                    [id]="'document-file-' + $index"
+                    type="file" 
+                    (change)="onDocumentFileSelected($event, $index)" 
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" 
+                    class="hidden"
+                  >
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-1">Type de document <span class="text-red-500">*</span></label>
+                  <select 
+                    [(ngModel)]="form.document_type_id"
+                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">Sélectionner un type</option>
+                    @for (type of documentTypes; track type.id) {
+                      <option [value]="type.id">{{ type.name }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-slate-700 mb-1">Nom du document <span class="text-red-500">*</span></label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="form.name"
+                    placeholder="Nom du document"
+                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-slate-700 mb-1">Description (optionnel)</label>
+                  <textarea 
+                    [(ngModel)]="form.description"
+                    placeholder="Description du document"
+                    rows="2"
+                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          }
+          <button 
+            (click)="uploadDocuments()"
+            [disabled]="uploading || documentForms.length === 0"
+            class="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-lg hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+          >
+            @if (uploading) {
+              <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Upload en cours...
+            } @else {
+              Uploader les documents
+            }
+          </button>
+        </div>
+      }
+
+      <!-- Liste des documents -->
+      @if (loading) {
+        <div class="text-center py-8">
+          <p class="text-slate-500">Chargement des documents...</p>
+        </div>
+      } @else if (documents.length === 0) {
+        <div class="text-center py-8 border-2 border-dashed border-slate-300 rounded-lg">
+          <p class="text-slate-500">Aucun document uploadé</p>
+        </div>
+      } @else {
+        <div class="space-y-3">
+          @for (document of documents; track document.id) {
+            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-4 flex-1">
+                <div class="p-2 bg-blue-100 rounded-lg">
+                  <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-semibold text-slate-900">{{ document.name }}</p>
+                  <div class="flex items-center gap-3 mt-1">
+                    @if (document.document_type) {
+                      <span class="text-sm text-slate-600">{{ document.document_type.name }}</span>
+                    }
+                    <span class="text-sm text-slate-500">{{ formatFileSize(document.file_size) }}</span>
+                    <span class="px-2 py-1 rounded text-xs font-semibold {{ getStatusClass(document.status) }}">
+                      {{ getStatusLabel(document.status) }}
+                    </span>
+                  </div>
+                  @if (document.description) {
+                    <p class="text-sm text-slate-500 mt-1">{{ document.description }}</p>
+                  }
+                  @if (document.rejection_reason) {
+                    <p class="text-sm text-red-600 mt-1 font-semibold">Raison du rejet : {{ document.rejection_reason }}</p>
+                  }
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <a 
+                  [href]="getDocumentUrl(document)" 
+                  [download]="document.name"
+                  target="_blank"
+                  class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  title="Télécharger"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                  </svg>
+                </a>
+                @if (!canCreateProperties()) {
+                  <button 
+                    (click)="deleteDocument(document.id)"
+                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Supprimer"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
+

@@ -46,17 +46,26 @@ export class PropertyDetailComponent implements OnInit {
   documentForms: { file: File | null; document_type_id: number | null; name: string; description: string }[] = [];
   showDocumentForm = false;
 
+  private propertyLoaded = false;
+
   ngOnInit(): void {
     this.loadDocumentTypes();
     
+    // Charger la propriété une seule fois au démarrage
+    const propertyId = this.route.snapshot.paramMap.get('id');
+    if (propertyId && !this.propertyLoaded) {
+      this.propertyLoaded = true;
+      this.loadProperty(+propertyId);
+    }
+    
+    // Mettre à jour les informations utilisateur sans recharger la propriété
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       this.isAdmin = user?.roles?.some((r: any) => r.name === 'admin') || false;
       
-      // Load property after user is loaded
-      const propertyId = this.route.snapshot.paramMap.get('id');
-      if (propertyId) {
-        this.loadProperty(+propertyId);
+      // Mettre à jour isOwner si la propriété est déjà chargée
+      if (this.property && user) {
+        this.isOwner = this.property.owner_id === user.id;
       }
     });
   }
@@ -65,16 +74,33 @@ export class PropertyDetailComponent implements OnInit {
     this.mediaService.getDocumentTypes().subscribe({
       next: (response) => {
         if (response.success) {
-          this.documentTypes = response.data || [];
+          // S'assurer que documentTypes est toujours un tableau
+          if (Array.isArray(response.data)) {
+            this.documentTypes = response.data;
+          } else if (response.data?.data && Array.isArray(response.data.data)) {
+            this.documentTypes = response.data.data;
+          } else {
+            this.documentTypes = [];
+          }
+          // Filtrer pour ne garder que les types pour les propriétés
+          this.documentTypes = this.documentTypes.filter((type: any) => type.entity_type === 'property');
+        } else {
+          this.documentTypes = [];
         }
       },
       error: (err) => {
         console.error('Erreur lors du chargement des types de documents', err);
+        this.documentTypes = [];
       }
     });
   }
 
   loadProperty(id: number): void {
+    // Ne pas charger si on n'est pas authentifié
+    if (!this.authService.isAuthenticated()) {
+      return;
+    }
+    
     this.loading = true;
     this.error = '';
     
@@ -90,18 +116,32 @@ export class PropertyDetailComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        this.error = err.error?.message || 'Erreur lors du chargement du bien';
+        // Ne pas afficher d'erreur si c'est une erreur 401 (déjà gérée par l'intercepteur)
+        if (err.status !== 401) {
+          this.error = err.error?.message || 'Erreur lors du chargement du bien';
+        }
         this.loading = false;
       }
     });
   }
 
   loadMedia(propertyId: number): void {
+    // Ne pas charger si on n'est pas authentifié
+    if (!this.authService.isAuthenticated()) {
+      return;
+    }
+    
     // Load images
     this.mediaService.getImages(propertyId).subscribe({
       next: (response) => {
         if (response.success) {
           this.images = response.data || [];
+        }
+      },
+      error: (err) => {
+        // Ignorer les erreurs 401 (déjà gérées par l'intercepteur)
+        if (err.status !== 401) {
+          console.error('Erreur lors du chargement des images', err);
         }
       }
     });
@@ -111,6 +151,12 @@ export class PropertyDetailComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.documents = response.data || [];
+        }
+      },
+      error: (err) => {
+        // Ignorer les erreurs 401 (déjà gérées par l'intercepteur)
+        if (err.status !== 401) {
+          console.error('Erreur lors du chargement des documents', err);
         }
       }
     });
@@ -487,6 +533,9 @@ export class PropertyDetailComponent implements OnInit {
   verifyingDocumentId: number | null = null;
   rejectingDocumentId: number | null = null;
   rejectionReason = '';
+  
+  // Admin property verification
+  verifyingProperty = false;
 
   // Admin image verification
   verifyingImageId: number | null = null;
@@ -639,6 +688,57 @@ export class PropertyDetailComponent implements OnInit {
       case 'delete':
         this.deleteProperty();
         break;
+    }
+  }
+
+  // Admin property verification
+  verifyProperty(): void {
+    if (!this.property) return;
+    
+    // Vérifier que tous les médias sont validés
+    if (!this.allMediaVerified()) {
+      alert('Veuillez valider tous les médias (images et documents) avant de valider le bien.');
+      return;
+    }
+
+    if (confirm('Êtes-vous sûr de vouloir valider ce bien ? Cette action marquera le bien comme vérifié et publié.')) {
+      this.verifyingProperty = true;
+      this.propertyService.verifyProperty(this.property.id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            // Recharger le bien pour mettre à jour le statut
+            this.loadProperty(this.property.id);
+            alert('Bien validé avec succès !');
+          }
+          this.verifyingProperty = false;
+        },
+        error: (error) => {
+          console.error('Error verifying property:', error);
+          alert('Erreur lors de la validation: ' + (error.error?.message || 'Erreur inconnue'));
+          this.verifyingProperty = false;
+        }
+      });
+    }
+  }
+
+  rejectProperty(): void {
+    if (!this.property) return;
+    
+    const reason = prompt('Raison du rejet :');
+    if (reason && reason.trim()) {
+      this.propertyService.rejectProperty(this.property.id, reason.trim()).subscribe({
+        next: (response) => {
+          if (response.success) {
+            // Recharger le bien pour mettre à jour le statut
+            this.loadProperty(this.property.id);
+            alert('Bien rejeté avec succès.');
+          }
+        },
+        error: (error) => {
+          console.error('Error rejecting property:', error);
+          alert('Erreur lors du rejet: ' + (error.error?.message || 'Erreur inconnue'));
+        }
+      });
     }
   }
 }

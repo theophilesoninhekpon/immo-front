@@ -1,102 +1,258 @@
 <div class="space-y-8">
-  <div class="flex justify-between items-center">
-    <div>
-      <h1 class="text-4xl font-display font-bold text-gray-900">Dashboard Administrateur</h1>
-      <p class="text-gray-600 mt-2">Vue d'ensemble de la plateforme</p>
-    </div>
+  <!-- Header -->
+  <div>
+    <h1 class="text-4xl font-bold text-slate-900 mb-2">Dashboard Administrateur</h1>
+    <p class="text-slate-600">Vue d'ensemble de la plateforme</p>
   </div>
-  
+
   @if (loading) {
     <div class="flex justify-center items-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
   } @else {
-    <!-- Stats Grid -->
+    <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div class="card">
+      <!-- Total Users -->
+      <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600 uppercase tracking-wide">Total Utilisateurs</p>
-            <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total_users || 0 }}</p>
+            <p class="text-sm text-slate-600 mb-1">Total utilisateurs</p>
+            <p class="text-3xl font-bold text-slate-900">{{ stats.users.total }}</p>
           </div>
-          <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-            <span class="text-2xl">👥</span>
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
           </div>
         </div>
-        <a routerLink="/admin/users" class="mt-4 inline-block text-sm font-semibold text-primary-600 hover:text-primary-700">
-          Voir tous →
-        </a>
       </div>
-      
-      <div class="card">
+
+      <!-- Sellers -->
+      <a 
+        routerLink="/admin/sellers"
+        class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all block"
+      >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600 uppercase tracking-wide">Vendeurs</p>
-            <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total_sellers || 0 }}</p>
+            <p class="text-sm text-slate-600 mb-1">Vendeurs</p>
+            <p class="text-3xl font-bold text-slate-900">{{ stats.users.sellers }}</p>
             <div class="mt-2 space-y-1">
-              <p class="text-xs text-green-600">✓ Vérifiés: {{ stats.verified_sellers || 0 }}</p>
-              <p class="text-xs text-yellow-600">⏳ En attente: {{ stats.pending_sellers || 0 }}</p>
+              <p class="text-xs text-green-600">✓ Vérifiés: {{ stats.users.verifiedSellers }}</p>
+              <p class="text-xs text-yellow-600">⏳ En attente: {{ stats.users.pendingSellers }}</p>
             </div>
           </div>
           <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-            <span class="text-2xl">🏪</span>
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+            </svg>
           </div>
         </div>
-      </div>
-      
-      <div class="card">
+      </a>
+
+      <!-- Buyers -->
+      <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600 uppercase tracking-wide">Acheteurs</p>
-            <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total_buyers || 0 }}</p>
+            <p class="text-sm text-slate-600 mb-1">Acheteurs</p>
+            <p class="text-3xl font-bold text-slate-900">{{ stats.users.buyers }}</p>
           </div>
           <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-            <span class="text-2xl">🔍</span>
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
           </div>
         </div>
       </div>
-      
-      <div class="card">
+
+      <!-- Properties -->
+      <a 
+        routerLink="/admin/properties"
+        class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all block"
+      >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600 uppercase tracking-wide">Biens</p>
-            <p class="text-3xl font-bold text-gray-900 mt-2">-</p>
+            <p class="text-sm text-slate-600 mb-1">Biens immobiliers</p>
+            <p class="text-3xl font-bold text-slate-900">{{ stats.properties.total }}</p>
+            <div class="mt-2 space-y-1">
+              <p class="text-xs text-blue-600">🏠 Disponibles: {{ stats.properties.available || stats.properties.published }}</p>
+              <p class="text-xs text-green-600">✓ Publiés: {{ stats.properties.published }}</p>
+              <p class="text-xs text-yellow-600">⏳ En attente: {{ stats.properties.pending }}</p>
+            </div>
           </div>
           <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-            <span class="text-2xl">🏠</span>
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+            </svg>
           </div>
         </div>
-        <a routerLink="/admin/properties" class="mt-4 inline-block text-sm font-semibold text-primary-600 hover:text-primary-700">
-          Gérer →
-        </a>
-      </div>
+      </a>
     </div>
-    
-    <!-- Quick Actions -->
-    <div class="mt-8">
-      <h2 class="text-2xl font-bold text-gray-900 mb-4">Actions rapides</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <a routerLink="/admin/users/pending" class="card group hover:shadow-large cursor-pointer">
-          <div class="flex items-center space-x-4">
-            <div class="w-16 h-16 bg-yellow-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <span class="text-3xl">⏳</span>
-            </div>
-            <div>
-              <h3 class="text-xl font-bold text-gray-900 mb-1">Vendeurs en attente</h3>
-              <p class="text-gray-600">{{ stats.pending_sellers || 0 }} vendeur(s) en attente de validation</p>
+
+    <!-- Secondary Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Pending Sellers -->
+      <a 
+        routerLink="/admin/sellers"
+        class="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl shadow-lg border border-yellow-400 p-6 text-white hover:from-yellow-600 hover:to-yellow-700 transition-all group"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-yellow-100 mb-1">Vendeurs en attente</p>
+            <p class="text-3xl font-bold">{{ stats.users.pendingSellers }}</p>
+          </div>
+          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center text-yellow-100 group-hover:text-white">
+          <span class="text-sm font-medium">Vérifier maintenant</span>
+          <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </div>
+      </a>
+
+      <!-- Pending Properties -->
+      <a 
+        routerLink="/admin/properties"
+        class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl shadow-lg border border-orange-400 p-6 text-white hover:from-orange-600 hover:to-orange-700 transition-all group"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-orange-100 mb-1">Biens en attente</p>
+            <p class="text-3xl font-bold">{{ stats.properties.pending }}</p>
+          </div>
+          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center text-orange-100 group-hover:text-white">
+          <span class="text-sm font-medium">Valider maintenant</span>
+          <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </div>
+      </a>
+
+      <!-- Property Interests -->
+      <a 
+        routerLink="/admin/property-interests"
+        class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg border border-blue-500 p-6 text-white hover:from-blue-700 hover:to-blue-800 transition-all group"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-blue-100 mb-1">Demandes d'intérêts</p>
+            <p class="text-3xl font-bold">{{ stats.requests.total }}</p>
+            <p class="text-xs text-blue-200 mt-1">{{ stats.requests.pending }} en attente</p>
+          </div>
+          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center text-blue-100 group-hover:text-white">
+          <span class="text-sm font-medium">Gérer les demandes</span>
+          <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </div>
+      </a>
+
+      <!-- Service Requests -->
+      <a 
+        routerLink="/admin/service-requests"
+        class="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-xl shadow-lg border border-indigo-500 p-6 text-white hover:from-indigo-700 hover:to-indigo-800 transition-all group"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-indigo-100 mb-1">Demandes de service</p>
+            <p class="text-3xl font-bold">{{ stats.serviceRequests.total }}</p>
+            <div class="mt-1 space-y-0.5">
+              <p class="text-xs text-indigo-200">{{ stats.serviceRequests.pending }} en attente</p>
+              <p class="text-xs text-indigo-200">{{ stats.serviceRequests.in_progress }} en cours</p>
             </div>
           </div>
-        </a>
-        
-        <a routerLink="/admin/properties" class="card group hover:shadow-large cursor-pointer">
-          <div class="flex items-center space-x-4">
-            <div class="w-16 h-16 bg-primary-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <span class="text-3xl">📋</span>
-            </div>
+          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center text-indigo-100 group-hover:text-white">
+          <span class="text-sm font-medium">Gérer les demandes</span>
+          <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </div>
+      </a>
+    </div>
+
+    <!-- Quick Actions -->
+    <div>
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">Actions rapides</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <a
+          routerLink="/admin/sellers"
+          class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all group"
+        >
+          <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-xl font-bold text-gray-900 mb-1">Gérer les biens</h3>
-              <p class="text-gray-600">Valider et gérer tous les biens</p>
+              <h3 class="text-lg font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors">Vendeurs</h3>
+              <p class="text-sm text-slate-600">Gérer les vendeurs</p>
             </div>
+            <svg class="w-6 h-6 text-blue-600 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </div>
+        </a>
+
+        <a
+          routerLink="/admin/buyers"
+          class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all group"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors">Acheteurs</h3>
+              <p class="text-sm text-slate-600">Gérer les acheteurs</p>
+            </div>
+            <svg class="w-6 h-6 text-blue-600 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </div>
+        </a>
+
+        <a
+          routerLink="/admin/properties"
+          class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all group"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors">Biens</h3>
+              <p class="text-sm text-slate-600">Gérer les biens</p>
+            </div>
+            <svg class="w-6 h-6 text-blue-600 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </div>
+        </a>
+
+        <a
+          routerLink="/admin/properties/new"
+          class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg border border-blue-500 p-6 text-white hover:from-blue-700 hover:to-blue-800 transition-all group"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold mb-1">Ajouter un bien</h3>
+              <p class="text-sm text-blue-100">Créer une annonce</p>
+            </div>
+            <svg class="w-6 h-6 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
           </div>
         </a>
       </div>
