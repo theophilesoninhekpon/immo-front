@@ -55,6 +55,28 @@ export class PublicPropertyDetailComponent implements OnInit {
     return '';
   }
 
+  getMainImage(): any | null {
+    if (!this.property?.images || this.property.images.length === 0) {
+      return null;
+    }
+    // Chercher l'image principale (is_main === true)
+    const mainImage = this.property.images.find((img: any) => img.is_main === true);
+    return mainImage || null;
+  }
+
+  getOtherImages(): any[] {
+    if (!this.property?.images || this.property.images.length === 0) {
+      return [];
+    }
+    // Retourner toutes les images sauf l'image principale
+    const mainImage = this.getMainImage();
+    if (mainImage) {
+      return this.property.images.filter((img: any) => img.id !== mainImage.id);
+    }
+    // Si pas d'image principale, retourner toutes les images sauf la première
+    return this.property.images.slice(1);
+  }
+
   formatPrice(price: number): string {
     return new Intl.NumberFormat('fr-FR').format(price);
   }
