@@ -1,8 +1,8 @@
-<div class="max-w-4xl mx-auto py-8">
+<div class="max-w-4xl mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8">
   <!-- Header -->
-  <div class="mb-8">
-    <h1 class="text-4xl font-display font-bold text-slate-900 mb-2">Ajouter un nouveau bien</h1>
-    <p class="text-slate-600">Remplissez les informations ci-dessous pour créer votre annonce</p>
+  <div class="mb-6 sm:mb-8">
+    <h1 class="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-slate-900 mb-1 sm:mb-2">Ajouter un nouveau bien</h1>
+    <p class="text-sm sm:text-base text-slate-600">Remplissez les informations ci-dessous pour créer votre annonce</p>
   </div>
 
   @if (success) {
@@ -31,24 +31,24 @@
   }
 
   <!-- Progress Bar - Sticky Header -->
-  <div class="sticky top-0 bg-white py-4 mb-8 border-b border-slate-200 shadow-sm">
+  <div class="sticky top-0 bg-white py-3 sm:py-4 mb-6 sm:mb-8 border-b border-slate-200 shadow-sm px-4 sm:px-0">
     <div class="max-w-3xl mx-auto">
-      <div class="flex items-center justify-between mb-3">
-        <span class="text-sm font-medium text-slate-700">Étape {{ currentStep }} sur {{ totalSteps }}</span>
-        <span class="text-sm font-medium text-blue-600">{{ round(getStepProgress()) }}%</span>
+      <div class="flex items-center justify-between mb-2 sm:mb-3">
+        <span class="text-xs sm:text-sm font-medium text-slate-700">Étape {{ currentStep }} sur {{ totalSteps }}</span>
+        <span class="text-xs sm:text-sm font-medium text-blue-600">{{ round(getStepProgress()) }}%</span>
       </div>
-      <div class="max-w-md mx-auto bg-slate-200 rounded-full h-2 mb-6">
+      <div class="max-w-md mx-auto bg-slate-200 rounded-full h-2 mb-4 sm:mb-6">
         <div 
           class="bg-gradient-to-r from-blue-600 to-blue-700 h-2 rounded-full transition-all duration-300"
           [style.width.%]="getStepProgress()"
         ></div>
       </div>
       <!-- Step Indicators -->
-      <div class="flex justify-between max-w-2xl mx-auto">
+      <div class="flex justify-between max-w-2xl mx-auto gap-1 sm:gap-2">
         @for (step of [1, 2, 3, 4]; track step) {
-          <div class="flex flex-col items-center flex-1 max-w-[150px]">
+          <div class="flex flex-col items-center flex-1 max-w-[120px] sm:max-w-[150px]">
             <div 
-              [class]="'w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all mb-2 ' + 
+              [class]="'w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm transition-all mb-1 sm:mb-2 ' + 
                 (step === currentStep ? 'bg-blue-600 text-white scale-110 shadow-lg' : 
                  step < currentStep ? 'bg-green-500 text-white' : 
                  'bg-slate-200 text-slate-500')"
@@ -62,7 +62,7 @@
               }
             </div>
             <span 
-              [class]="'text-xs text-center font-medium px-2 ' + 
+              [class]="'text-[10px] sm:text-xs text-center font-medium px-1 sm:px-2 ' + 
                 (step === currentStep ? 'text-blue-600 font-semibold' : 
                  step < currentStep ? 'text-green-600' : 
                  'text-slate-400')"

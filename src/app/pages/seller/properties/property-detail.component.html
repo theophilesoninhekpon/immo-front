@@ -1,4 +1,4 @@
-<div class="max-w-7xl mx-auto py-8" (click)="closeActionMenu()">
+<div class="max-w-7xl mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8" (click)="closeActionMenu()">
   @if (loading) {
     <div class="flex justify-center items-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -73,8 +73,8 @@
       </div>
       
       <!-- Title with status badges -->
-      <div class="flex items-center gap-3 flex-wrap mb-6">
-        <h1 class="text-4xl font-display font-bold text-slate-900">{{ property.title }}</h1>
+      <div class="flex items-center gap-3 flex-wrap mb-4 sm:mb-6">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-slate-900">{{ property.title }}</h1>
         <span [class]="'px-3 py-1 rounded-full text-sm font-semibold ' + getStatusClass(property.status)">
           {{ getStatusLabel(property.status) }}
         </span>

@@ -1,4 +1,4 @@
-<div class="max-w-7xl mx-auto py-8">
+<div class="max-w-7xl mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8">
   @if (loading) {
     <div class="flex justify-center items-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -26,8 +26,8 @@
         Retour
       </button>
       
-      <div class="flex items-center gap-3 flex-wrap mb-6">
-        <h1 class="text-4xl font-bold text-slate-900">{{ property.title }}</h1>
+      <div class="flex items-center gap-3 flex-wrap mb-4 sm:mb-6">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900">{{ property.title }}</h1>
         @if (property.is_verified) {
           <span class="px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">
             ✓ Vérifié
@@ -36,9 +36,9 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
       <!-- Main Content -->
-      <div class="lg:col-span-2 space-y-6">
+      <div class="lg:col-span-2 space-y-4 sm:space-y-6">
         <!-- Images -->
         @if (property.images && property.images.length > 0) {
           <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
@@ -47,14 +47,14 @@
                 <img 
                   [src]="getPropertyImageUrl(property.images[0])" 
                   [alt]="property.title"
-                  class="w-full h-96 object-cover rounded-lg"
+                  class="w-full h-64 sm:h-80 md:h-96 object-cover rounded-lg"
                 />
               </div>
               @for (image of property.images.slice(1, 5); track image.id) {
                 <img 
                   [src]="getPropertyImageUrl(image)" 
                   [alt]="property.title"
-                  class="w-full h-48 object-cover rounded-lg"
+                  class="w-full h-32 sm:h-40 md:h-48 object-cover rounded-lg"
                 />
               }
             </div>
@@ -62,47 +62,47 @@
         }
 
         <!-- Price and Description -->
-        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
-          <p class="text-3xl font-bold text-blue-600 mb-4">{{ formatPrice(property.price) }} FCFA</p>
-          <p class="text-slate-600 whitespace-pre-line">{{ property.description }}</p>
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6">
+          <p class="text-2xl sm:text-3xl font-bold text-blue-600 mb-3 sm:mb-4">{{ formatPrice(property.price) }} FCFA</p>
+          <p class="text-sm sm:text-base text-slate-600 whitespace-pre-line">{{ property.description }}</p>
         </div>
 
         <!-- Characteristics -->
-        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
-          <h2 class="text-2xl font-bold text-slate-900 mb-4">Caractéristiques</h2>
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6">
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mb-3 sm:mb-4">Caractéristiques</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div>
-              <p class="text-sm text-slate-600">Surface</p>
-              <p class="text-lg font-semibold text-slate-900">{{ property.surface_area }} m²</p>
+              <p class="text-xs sm:text-sm text-slate-600">Surface</p>
+              <p class="text-base sm:text-lg font-semibold text-slate-900">{{ property.surface_area }} m²</p>
             </div>
             @if (property.rooms) {
               <div>
-                <p class="text-sm text-slate-600">Pièces</p>
-                <p class="text-lg font-semibold text-slate-900">{{ property.rooms }}</p>
+                <p class="text-xs sm:text-sm text-slate-600">Pièces</p>
+                <p class="text-base sm:text-lg font-semibold text-slate-900">{{ property.rooms }}</p>
               </div>
             }
             @if (property.bedrooms) {
               <div>
-                <p class="text-sm text-slate-600">Chambres</p>
-                <p class="text-lg font-semibold text-slate-900">{{ property.bedrooms }}</p>
+                <p class="text-xs sm:text-sm text-slate-600">Chambres</p>
+                <p class="text-base sm:text-lg font-semibold text-slate-900">{{ property.bedrooms }}</p>
               </div>
             }
             @if (property.bathrooms) {
               <div>
-                <p class="text-sm text-slate-600">Salles de bain</p>
-                <p class="text-lg font-semibold text-slate-900">{{ property.bathrooms }}</p>
+                <p class="text-xs sm:text-sm text-slate-600">Salles de bain</p>
+                <p class="text-base sm:text-lg font-semibold text-slate-900">{{ property.bathrooms }}</p>
               </div>
             }
             @if (property.floors) {
               <div>
-                <p class="text-sm text-slate-600">Étages</p>
-                <p class="text-lg font-semibold text-slate-900">{{ property.floors }}</p>
+                <p class="text-xs sm:text-sm text-slate-600">Étages</p>
+                <p class="text-base sm:text-lg font-semibold text-slate-900">{{ property.floors }}</p>
               </div>
             }
             @if (property.year_built) {
               <div>
-                <p class="text-sm text-slate-600">Année de construction</p>
-                <p class="text-lg font-semibold text-slate-900">{{ property.year_built }}</p>
+                <p class="text-xs sm:text-sm text-slate-600">Année de construction</p>
+                <p class="text-base sm:text-lg font-semibold text-slate-900">{{ property.year_built }}</p>
               </div>
             }
           </div>

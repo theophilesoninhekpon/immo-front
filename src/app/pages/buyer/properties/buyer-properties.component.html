@@ -1,28 +1,28 @@
-<div class="min-h-screen bg-slate-50 py-8 px-4">
+<div class="min-h-screen bg-slate-50 py-4 sm:py-6 lg:py-8 px-3 sm:px-4">
   <div class="max-w-7xl mx-auto">
     <!-- Header -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-slate-900 mb-2">Rechercher un bien</h1>
-      <p class="text-slate-600">Découvrez notre sélection de biens immobiliers au Bénin</p>
+    <div class="mb-4 sm:mb-6 lg:mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-1 sm:mb-2">Rechercher un bien</h1>
+      <p class="text-sm sm:text-base text-slate-600">Découvrez notre sélection de biens immobiliers au Bénin</p>
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium text-slate-700 mb-2">Recherche</label>
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6 mb-4 sm:mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="sm:col-span-2 md:col-span-2">
+          <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1 sm:mb-2">Recherche</label>
           <input
             type="text"
             [(ngModel)]="filters.search"
             placeholder="Titre, description, référence..."
-            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-2">Type de bien</label>
+          <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1 sm:mb-2">Type de bien</label>
           <select
             [(ngModel)]="filters.property_type_id"
-            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Tous les types</option>
             @for (type of propertyTypes; track type.id) {
@@ -35,7 +35,7 @@
           <select
             [(ngModel)]="filters.department_id"
             (change)="onDepartmentChange()"
-            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Tous les départements</option>
             @for (dept of departments; track dept.id) {
@@ -62,7 +62,7 @@
             type="number"
             [(ngModel)]="filters.min_price"
             placeholder="Prix minimum"
-            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         <div>
@@ -71,7 +71,7 @@
             type="number"
             [(ngModel)]="filters.max_price"
             placeholder="Prix maximum"
-            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         <div>
@@ -80,7 +80,7 @@
             type="number"
             [(ngModel)]="filters.min_surface"
             placeholder="Surface minimum"
-            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         <div>
@@ -89,7 +89,7 @@
             type="number"
             [(ngModel)]="filters.max_surface"
             placeholder="Surface maximum"
-            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         <div>
@@ -98,7 +98,7 @@
             type="number"
             [(ngModel)]="filters.bedrooms"
             placeholder="Nombre de chambres"
-            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         <div>
@@ -107,14 +107,14 @@
             type="number"
             [(ngModel)]="filters.bathrooms"
             placeholder="Nombre de salles de bain"
-            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-2">Trier par</label>
           <select
             [(ngModel)]="filters.sort_by"
-            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="created_at">Date de publication</option>
             <option value="price">Prix</option>
@@ -125,23 +125,23 @@
           <label class="block text-sm font-medium text-slate-700 mb-2">Ordre</label>
           <select
             [(ngModel)]="filters.sort_order"
-            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="desc">Décroissant</option>
             <option value="asc">Croissant</option>
           </select>
         </div>
       </div>
-      <div class="flex items-center gap-2 mt-4">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2 mt-4">
         <button
           (click)="applyFilters()"
-          class="flex-1 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+          class="flex-1 px-4 sm:px-6 py-2 text-sm sm:text-base bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
         >
           Filtrer
         </button>
         <button
           (click)="resetFilters()"
-          class="px-6 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition-colors"
+          class="px-4 sm:px-6 py-2 text-sm sm:text-base bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition-colors"
         >
           Réinitialiser
         </button>
@@ -155,21 +155,21 @@
       </div>
     } @else {
       @if (properties.length === 0) {
-      <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-12 text-center">
-        <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span class="text-5xl">🔍</span>
+      <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-8 sm:p-12 text-center">
+        <div class="w-16 h-16 sm:w-24 sm:h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+          <span class="text-4xl sm:text-5xl">🔍</span>
         </div>
-        <h3 class="text-2xl font-bold text-slate-900 mb-2">Aucun bien trouvé</h3>
-        <p class="text-slate-600">Aucun bien ne correspond à vos critères de recherche</p>
+        <h3 class="text-xl sm:text-2xl font-bold text-slate-900 mb-2">Aucun bien trouvé</h3>
+        <p class="text-sm sm:text-base text-slate-600">Aucun bien ne correspond à vos critères de recherche</p>
       </div>
     } @else {
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
         @for (property of properties; track property.id) {
           <a 
             [routerLink]="['/buyer/properties', property.id]" 
             class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden hover:shadow-xl transition-all group block"
           >
-            <div class="relative h-56 overflow-hidden">
+            <div class="relative h-48 sm:h-56 overflow-hidden">
               @if (getPropertyImageUrl(property)) {
                 <img 
                   [src]="getPropertyImageUrl(property)" 
@@ -188,12 +188,12 @@
               }
             </div>
             
-            <div class="p-4 space-y-2">
-              <h3 class="text-xl font-bold text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+            <div class="p-3 sm:p-4 space-y-2">
+              <h3 class="text-lg sm:text-xl font-bold text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
                 {{ property.title }}
               </h3>
-              <p class="text-2xl font-bold text-blue-600">{{ property.price | number }} FCFA</p>
-              <div class="flex items-center text-sm text-slate-600 space-x-4">
+              <p class="text-xl sm:text-2xl font-bold text-blue-600">{{ property.price | number }} FCFA</p>
+              <div class="flex items-center text-xs sm:text-sm text-slate-600 space-x-2 sm:space-x-4 flex-wrap">
                 <span>{{ property.surface_area }} m²</span>
                 <span>•</span>
                 <span>{{ property.rooms || 0 }} pièces</span>
@@ -218,27 +218,27 @@
 
       <!-- Pagination -->
       @if (totalPages > 1) {
-        <div class="bg-white rounded-xl shadow-lg border border-slate-200 px-6 py-4 flex items-center justify-between">
-          <div class="text-sm text-slate-600">
-            Page {{ currentPage }} sur {{ totalPages }} ({{ total }} bien(s))
+          <div class="bg-white rounded-xl shadow-lg border border-slate-200 px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
+            <div class="text-xs sm:text-sm text-slate-600 text-center sm:text-left">
+              Page {{ currentPage }} sur {{ totalPages }} ({{ total }} bien(s))
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
+              <button
+                (click)="previousPage()"
+                [disabled]="currentPage === 1"
+                class="flex-1 sm:flex-none px-4 py-2 text-sm sm:text-base border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Précédent
+              </button>
+              <button
+                (click)="nextPage()"
+                [disabled]="currentPage === totalPages"
+                class="flex-1 sm:flex-none px-4 py-2 text-sm sm:text-base border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Suivant
+              </button>
+            </div>
           </div>
-          <div class="flex items-center gap-2">
-            <button
-              (click)="previousPage()"
-              [disabled]="currentPage === 1"
-              class="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Précédent
-            </button>
-            <button
-              (click)="nextPage()"
-              [disabled]="currentPage === totalPages"
-              class="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Suivant
-            </button>
-          </div>
-        </div>
       }
       }
     }

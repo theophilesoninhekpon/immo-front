@@ -159,14 +159,14 @@
     @if (canCreateProperty) {
       <a
         routerLink="/seller/properties/new"
-        class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg border border-blue-500 p-6 text-white hover:from-blue-700 hover:to-blue-800 transition-all group"
+        class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg border border-blue-500 p-4 sm:p-6 text-white hover:from-blue-700 hover:to-blue-800 transition-all group"
       >
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-xl font-bold mb-2">Ajouter un bien</h3>
-            <p class="text-blue-100">Créez une nouvelle annonce</p>
+            <h3 class="text-lg sm:text-xl font-bold mb-1 sm:mb-2">Ajouter un bien</h3>
+            <p class="text-sm sm:text-base text-blue-100">Créez une nouvelle annonce</p>
           </div>
-          <svg class="w-8 h-8 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-6 h-6 sm:w-8 sm:h-8 group-hover:rotate-90 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
           </svg>
         </div>

@@ -1,28 +1,28 @@
-<div class="min-h-screen bg-slate-50 py-8 px-4">
+<div class="min-h-screen bg-slate-50 py-4 sm:py-6 lg:py-8 px-3 sm:px-4">
   <div class="max-w-7xl mx-auto">
     <!-- Header -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-slate-900 mb-2">Mes requêtes</h1>
-      <p class="text-slate-600">Gérez vos demandes d'intérêt pour les biens immobiliers</p>
+    <div class="mb-4 sm:mb-6 lg:mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-1 sm:mb-2">Mes requêtes</h1>
+      <p class="text-sm sm:text-base text-slate-600">Gérez vos demandes d'intérêt pour les biens immobiliers</p>
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6 mb-4 sm:mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-2">Recherche</label>
+          <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1 sm:mb-2">Recherche</label>
           <input
             type="text"
             [(ngModel)]="filters.search"
             placeholder="Rechercher dans les requêtes..."
-            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-2">Statut</label>
+          <label class="block text-xs sm:text-sm font-medium text-slate-700 mb-1 sm:mb-2">Statut</label>
           <select
             [(ngModel)]="filters.status"
-            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Tous les statuts</option>
             <option value="pending">En attente</option>
@@ -33,10 +33,10 @@
             <option value="completed">Terminé</option>
           </select>
         </div>
-        <div class="flex items-end gap-2">
+        <div class="flex items-end gap-2 sm:col-span-2 md:col-span-1">
           <button
             (click)="applyFilters()"
-            class="flex-1 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+            class="w-full px-4 py-2 text-sm sm:text-base bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
           >
             Filtrer
           </button>
@@ -59,52 +59,54 @@
           <table class="w-full">
             <thead class="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Bien</th>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Message</th>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Statut</th>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Date</th>
-                <th class="px-6 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
+                <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Bien</th>
+                <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider hidden md:table-cell">Message</th>
+                <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Statut</th>
+                <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider hidden lg:table-cell">Date</th>
+                <th class="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-200">
               @for (request of requests; track request.id) {
                 <tr class="hover:bg-slate-50 transition-colors">
-                  <td class="px-6 py-4">
+                  <td class="px-3 sm:px-6 py-3 sm:py-4">
                     @if (request.property) {
                       <div>
-                        <p class="font-semibold text-slate-900">{{ request.property.title }}</p>
-                        <p class="text-sm text-slate-600">{{ request.property.price | number }} FCFA</p>
+                        <p class="text-sm sm:text-base font-semibold text-slate-900">{{ request.property.title }}</p>
+                        <p class="text-xs sm:text-sm text-slate-600">{{ request.property.price | number }} FCFA</p>
                       </div>
                     } @else {
-                      <span class="text-slate-500">Bien supprimé</span>
+                      <span class="text-xs sm:text-sm text-slate-500">Bien supprimé</span>
                     }
                   </td>
-                  <td class="px-6 py-4">
-                    <p class="text-sm text-slate-700 line-clamp-2">{{ request.message || '-' }}</p>
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 hidden md:table-cell">
+                    <p class="text-xs sm:text-sm text-slate-700 line-clamp-2">{{ request.message || '-' }}</p>
                   </td>
-                  <td class="px-6 py-4">
+                  <td class="px-3 sm:px-6 py-3 sm:py-4">
                     <span class="px-2 py-1 rounded text-xs font-semibold {{ getStatusClass(request.status) }}">
                       {{ getStatusLabel(request.status) }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 text-sm text-slate-600">
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-600 hidden lg:table-cell">
                     {{ formatDate(request.created_at) }}
                   </td>
-                  <td class="px-6 py-4 text-right">
-                    @if (request.property) {
-                      <a
-                        [routerLink]="['/buyer/properties', request.property.id]"
-                        class="text-blue-600 hover:text-blue-700 font-medium text-sm mr-4"
+                  <td class="px-3 sm:px-6 py-3 sm:py-4 text-right">
+                    <div class="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-4">
+                      @if (request.property) {
+                        <a
+                          [routerLink]="['/buyer/properties', request.property.id]"
+                          class="text-blue-600 hover:text-blue-700 font-medium text-xs sm:text-sm"
+                        >
+                          Voir le bien
+                        </a>
+                      }
+                      <button
+                        (click)="deleteRequest(request.id)"
+                        class="text-red-600 hover:text-red-700 font-medium text-xs sm:text-sm"
                       >
-                        Voir le bien
-                      </a>
-                    }
-                    <button
-                      (click)="deleteRequest(request.id)"
-                      class="text-red-600 hover:text-red-700 font-medium text-sm"
-                    >
-                      Supprimer
-                    </button>
+                        Supprimer
+                      </button>
+                    </div>
                   </td>
                 </tr>
               }
