@@ -1,8 +1,16 @@
 <div class="min-h-screen bg-slate-50 flex">
+  <!-- Backdrop pour mobile -->
+  @if (sidebarOpen) {
+    <div 
+      (click)="toggleSidebar()"
+      class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden transition-opacity duration-300"
+    ></div>
+  }
+  
   <!-- Sidebar -->
   <aside 
-    [class]="'bg-slate-900 text-white transition-all duration-300 flex flex-col ' + (sidebarOpen ? 'w-64' : 'w-16 sm:w-20')"
-    class="fixed inset-y-0 left-0 z-50"
+    [class]="'bg-slate-900 text-white transition-all duration-300 flex flex-col fixed inset-y-0 left-0 z-50 ' + 
+      (sidebarOpen ? 'w-64 translate-x-0' : '-translate-x-full md:translate-x-0 md:w-16 lg:w-20')"
   >
     <!-- Logo -->
     <div class="flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4 border-b border-slate-800 flex-shrink-0">
@@ -28,6 +36,7 @@
         routerLink="/buyer" 
         routerLinkActive="bg-blue-600 text-white"
         [routerLinkActiveOptions]="{exact: true}"
+        (click)="closeSidebarOnMobile()"
         class="flex items-center space-x-2 sm:space-x-3 px-2 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-slate-800 transition-colors group"
       >
         <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,6 +48,7 @@
       <a 
         routerLink="/buyer/properties" 
         routerLinkActive="bg-blue-600 text-white"
+        (click)="closeSidebarOnMobile()"
         class="flex items-center space-x-2 sm:space-x-3 px-2 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-slate-800 transition-colors group"
       >
         <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,6 +60,7 @@
       <a 
         routerLink="/buyer/requests" 
         routerLinkActive="bg-blue-600 text-white"
+        (click)="closeSidebarOnMobile()"
         class="flex items-center space-x-2 sm:space-x-3 px-2 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-slate-800 transition-colors group"
       >
         <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,6 +72,7 @@
       <a 
         routerLink="/buyer/services" 
         routerLinkActive="bg-blue-600 text-white"
+        (click)="closeSidebarOnMobile()"
         class="flex items-center space-x-2 sm:space-x-3 px-2 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-slate-800 transition-colors group"
       >
         <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,7 +110,7 @@
   </aside>
 
   <!-- Main Content -->
-  <div class="flex-1 transition-all duration-300" [class.ml-16]="!sidebarOpen" [class.ml-64]="sidebarOpen" [class.sm:ml-20]="!sidebarOpen" [class.sm:ml-64]="sidebarOpen">
+  <div class="flex-1 transition-all duration-300 w-full md:ml-16 lg:ml-20">
     <!-- Top Bar -->
     <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-40">
       <!-- Space Indicator -->
@@ -120,6 +132,16 @@
       
       <div class="px-4 sm:px-6 py-3 sm:py-4">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-3 sm:mb-4">
+          <!-- Hamburger Menu Button (Mobile) -->
+          <button 
+            (click)="toggleSidebar()"
+            class="md:hidden p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors mb-2"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+          
           <!-- Page Title -->
           <div>
             <h1 class="text-xl sm:text-2xl font-bold text-slate-900">Dashboard</h1>

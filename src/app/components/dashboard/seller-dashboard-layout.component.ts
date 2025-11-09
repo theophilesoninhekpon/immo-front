@@ -20,7 +20,7 @@ export class SellerDashboardLayoutComponent implements OnInit {
   private interestService = inject(PropertyInterestService);
   
   currentUser$ = this.authService.currentUser$;
-  sidebarOpen = true;
+  sidebarOpen = false; // Fermé par défaut sur mobile
   
   // Quick stats
   myPropertiesCount = 0;
@@ -95,6 +95,13 @@ export class SellerDashboardLayoutComponent implements OnInit {
 
   toggleSidebar(): void {
     this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebarOnMobile(): void {
+    // Fermer le sidebar sur mobile après navigation
+    if (window.innerWidth < 768) {
+      this.sidebarOpen = false;
+    }
   }
 
   formatDate(): string {

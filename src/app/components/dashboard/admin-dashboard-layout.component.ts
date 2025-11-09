@@ -22,7 +22,7 @@ export class AdminDashboardLayoutComponent implements OnInit {
   private interestService = inject(PropertyInterestService);
   
   currentUser$ = this.authService.currentUser$;
-  sidebarOpen = true;
+  sidebarOpen = false; // Fermé par défaut sur mobile
   
   // Quick stats
   pendingSellersCount = 0;
@@ -104,6 +104,13 @@ export class AdminDashboardLayoutComponent implements OnInit {
 
   toggleSidebar(): void {
     this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebarOnMobile(): void {
+    // Fermer le sidebar sur mobile après navigation
+    if (window.innerWidth < 768) {
+      this.sidebarOpen = false;
+    }
   }
 
   formatDate(): string {
