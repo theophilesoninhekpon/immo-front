@@ -30,9 +30,8 @@
               }
             ],
             "styles": [
-              "src/tailwind.css"
-            ],
-            "externalDependencies": ["tailwindcss"]
+              "src/styles.sass"
+            ]
           },
           "configurations": {
             "production": {
