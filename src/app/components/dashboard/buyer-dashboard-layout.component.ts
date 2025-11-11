@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
@@ -20,7 +20,8 @@ export class BuyerDashboardLayoutComponent implements OnInit {
   private interestService = inject(PropertyInterestService);
   
   currentUser$ = this.authService.currentUser$;
-  sidebarOpen = false; // Fermé par défaut sur mobile
+  sidebarOpen = false; // Sera initialisé selon la taille d'écran
+  isDesktop = false;
   
   // Quick stats
   availablePropertiesCount = 0;
@@ -29,6 +30,11 @@ export class BuyerDashboardLayoutComponent implements OnInit {
   searchQuery = '';
 
   ngOnInit(): void {
+    this.checkScreenSize();
+    // Ouvrir le sidebar par défaut sur desktop/tablette
+    if (this.isDesktop) {
+      this.sidebarOpen = true;
+    }
     this.loadQuickStats();
     // Update date every minute
     setInterval(() => {
@@ -85,13 +91,29 @@ export class BuyerDashboardLayoutComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  @HostListener('window:resize')
+  onResize(): void {
+    this.checkScreenSize();
+    // Si on passe en mode mobile, fermer le sidebar
+    if (!this.isDesktop) {
+      this.sidebarOpen = false;
+    } else if (this.isDesktop && !this.sidebarOpen) {
+      // Si on passe en mode desktop et que le sidebar n'est pas ouvert, l'ouvrir
+      this.sidebarOpen = true;
+    }
+  }
+
+  private checkScreenSize(): void {
+    this.isDesktop = window.innerWidth >= 768;
+  }
+
   toggleSidebar(): void {
     this.sidebarOpen = !this.sidebarOpen;
   }
 
   closeSidebarOnMobile(): void {
-    // Fermer le sidebar sur mobile après navigation
-    if (window.innerWidth < 768) {
+    // Fermer le sidebar sur mobile après navigation ou clic sur backdrop
+    if (!this.isDesktop) {
       this.sidebarOpen = false;
     }
   }

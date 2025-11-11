@@ -9,7 +9,7 @@ import { MediaService } from '../../../services/media.service';
 @Component({
   selector: 'app-property-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './property-detail.component.html'
 })
 export class PropertyDetailComponent implements OnInit {

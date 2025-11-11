@@ -11,3 +11,28 @@ body
 
 .font-display
   font-family: var(--font-serif)
+
+// Custom scrollbar for sidebar
+.custom-scrollbar
+  &::-webkit-scrollbar
+    width: 12px
+    background: transparent !important
+
+  &::-webkit-scrollbar-track
+    background: transparent !important
+    background-color: transparent !important
+    -webkit-box-shadow: none !important
+    box-shadow: none !important
+    border: none !important
+
+  &::-webkit-scrollbar-thumb
+    background: rgba(148, 163, 184, 0.6)
+    border-radius: 3px
+    transition: background 0.2s
+
+    &:hover
+      background: rgba(148, 163, 184, 0.8)
+
+  // Firefox
+  scrollbar-width: 10px
+  scrollbar-color: rgba(148, 163, 184, 0.6) transparent
