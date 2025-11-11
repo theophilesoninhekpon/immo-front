@@ -2,7 +2,7 @@
     "framework": "angular",
     "buildCommand": "npm run build",
     "installCommand": "npm install",
-    "outputDirectory": "dist/immo-front",
+    "outputDirectory": "dist/immo-front/browser",
     "rewrites": [
       {
         "source": "/(.*)",
