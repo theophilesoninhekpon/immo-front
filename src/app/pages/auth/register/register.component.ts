@@ -68,7 +68,7 @@ export class RegisterComponent {
       phone: ['', [Validators.required, phoneValidator]],
       password: ['', [Validators.required, Validators.minLength(8), passwordStrengthValidator]],
       password_confirmation: ['', [Validators.required]],
-      role: ['acheteur', [Validators.required]]
+      role: ['vendeur', [Validators.required]]
     }, { validators: passwordMatchValidator });
   }
 

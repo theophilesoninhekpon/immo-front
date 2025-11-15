@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PropertyService } from '../../../services/property.service';
 import { AuthService } from '../../../services/auth.service';
 import { MediaService } from '../../../services/media.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-property-detail',
@@ -202,8 +203,14 @@ export class PropertyDetailComponent implements OnInit {
   }
 
   getImageUrl(image: any): string {
+    // Use the url attribute from backend (Supabase Storage URL)
+    if (image?.url) {
+      return image.url;
+    }
+    // Fallback to file_path if url is not available (for backward compatibility)
     if (image?.file_path) {
-      return `http://localhost:8000/storage/${image.file_path}`;
+      const baseUrl = environment.apiUrl.replace('/api', '');
+      return `${baseUrl}/storage/${image.file_path}`;
     }
     return '';
   }
@@ -588,8 +595,14 @@ export class PropertyDetailComponent implements OnInit {
   }
 
   getDocumentUrl(document: any): string {
+    // Use the url attribute from backend (Supabase Storage URL)
+    if (document?.url) {
+      return document.url;
+    }
+    // Fallback to file_path if url is not available (for backward compatibility)
     if (document?.file_path) {
-      return `http://localhost:8000/storage/${document.file_path}`;
+      const baseUrl = environment.apiUrl.replace('/api', '');
+      return `${baseUrl}/storage/${document.file_path}`;
     }
     return '';
   }

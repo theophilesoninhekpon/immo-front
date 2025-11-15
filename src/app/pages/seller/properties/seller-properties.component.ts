@@ -108,13 +108,19 @@ export class SellerPropertiesComponent implements OnInit {
     
     // Chercher l'image principale (is_main === true)
     const mainImage = property.images.find((img: any) => img.is_main === true);
-    if (mainImage && mainImage.file_path) {
+    if (mainImage?.url) {
+      return mainImage.url;
+    }
+    if (mainImage?.file_path) {
       const baseUrl = environment.apiUrl.replace('/api', '');
       return `${baseUrl}/storage/${mainImage.file_path}`;
     }
     
     // Si pas d'image principale, utiliser la première image
-    if (property.images[0] && property.images[0].file_path) {
+    if (property.images[0]?.url) {
+      return property.images[0].url;
+    }
+    if (property.images[0]?.file_path) {
       const baseUrl = environment.apiUrl.replace('/api', '');
       return `${baseUrl}/storage/${property.images[0].file_path}`;
     }

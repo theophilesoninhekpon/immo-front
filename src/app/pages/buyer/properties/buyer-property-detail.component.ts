@@ -127,6 +127,11 @@ export class BuyerPropertyDetailComponent implements OnInit {
   }
 
   getPropertyImageUrl(image: any): string {
+    // Use the url attribute from backend (Supabase Storage URL)
+    if (image?.url) {
+      return image.url;
+    }
+    // Fallback to file_path if url is not available
     if (image?.file_path) {
       const baseUrl = environment.apiUrl.replace('/api', '');
       return `${baseUrl}/storage/${image.file_path}`;

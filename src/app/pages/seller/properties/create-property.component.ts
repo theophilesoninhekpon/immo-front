@@ -6,6 +6,9 @@ import { PropertyService } from '../../../services/property.service';
 import { LocationService } from '../../../services/location.service';
 import { AuthService } from '../../../services/auth.service';
 
+// Leaflet types (OpenStreetMap - FREE alternative)
+declare var L: any;
+
 @Component({
   selector: 'app-create-property',
   standalone: true,
@@ -33,6 +36,11 @@ export class CreatePropertyComponent implements OnInit {
   arrondissements: any[] = [];
   towns: any[] = [];
   features: any[] = [];
+
+  // Map
+  map: any = null;
+  marker: any = null;
+  mapInitialized = false;
 
   constructor(private authService: AuthService) {
     this.initForm();
@@ -93,41 +101,221 @@ export class CreatePropertyComponent implements OnInit {
     this.loadData();
   }
 
+  // Helper method to extract array data from response
+  private extractArrayData(response: any): any[] {
+    if (Array.isArray(response)) {
+      return response;
+    }
+    if (response?.data?.data && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+    if (response?.data && Array.isArray(response.data)) {
+      return response.data;
+    }
+    return [];
+  }
+
+  // Initialize Leaflet Map (OpenStreetMap - FREE, no API key needed)
+  // TODO: Migrer vers Google Maps plus tard pour plus de fonctionnalités
+  initMap(): void {
+    if (typeof L === 'undefined') {
+      console.error('Leaflet library not loaded');
+      return;
+    }
+
+    const addressGroup = this.propertyForm.get('address');
+    const lat = addressGroup?.get('latitude')?.value || 6.4969; // Default: Cotonou
+    const lng = addressGroup?.get('longitude')?.value || 2.6036;
+
+    const mapElement = document.getElementById('property-map');
+    if (!mapElement) {
+      console.error('Map element not found');
+      return;
+    }
+
+    // Initialize map centered on Bénin (Cotonou)
+    this.map = L.map(mapElement).setView([parseFloat(lat) || 6.4969, parseFloat(lng) || 2.6036], 13);
+
+    // Add OpenStreetMap tiles (FREE, no API key needed)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(this.map);
+
+    // Add marker if coordinates exist
+    if (lat && lng) {
+      this.addMarker(parseFloat(lat), parseFloat(lng));
+    }
+
+    // Add click listener to place marker
+    this.map.on('click', (e: any) => {
+      const clickedLat = e.latlng.lat;
+      const clickedLng = e.latlng.lng;
+      this.addMarker(clickedLat, clickedLng);
+      this.updateCoordinates(clickedLat, clickedLng);
+    });
+
+    this.mapInitialized = true;
+  }
+
+  addMarker(lat: number, lng: number): void {
+    if (!this.map) return;
+
+    // Remove existing marker
+    if (this.marker) {
+      this.map.removeLayer(this.marker);
+    }
+
+    // Create custom icon (red marker)
+    const customIcon = L.icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+
+    // Add new marker
+    this.marker = L.marker([lat, lng], {
+      draggable: true,
+      icon: customIcon
+    }).addTo(this.map);
+
+    // Add popup
+    this.marker.bindPopup('Localisation du bien').openPopup();
+
+    // Update coordinates when marker is dragged
+    this.marker.on('dragend', (e: any) => {
+      const newLat = e.target.getLatLng().lat;
+      const newLng = e.target.getLatLng().lng;
+      this.updateCoordinates(newLat, newLng);
+    });
+
+    // Center map on marker
+    this.map.setView([lat, lng], this.map.getZoom());
+  }
+
+  updateCoordinates(lat: number, lng: number): void {
+    const addressGroup = this.propertyForm.get('address');
+    if (addressGroup) {
+      addressGroup.patchValue({
+        latitude: lat.toString(),
+        longitude: lng.toString()
+      });
+    }
+  }
+
+  // Use current location with high accuracy
+  useCurrentLocation(event?: Event): void {
+    if (!navigator.geolocation) {
+      alert('La géolocalisation n\'est pas supportée par votre navigateur.');
+      return;
+    }
+
+    // Show loading state
+    const button = event?.target as HTMLElement;
+    const originalText = button?.textContent;
+    if (button) {
+      button.textContent = 'Localisation en cours...';
+      button.setAttribute('disabled', 'true');
+    }
+
+    // Request high accuracy position
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const accuracy = position.coords.accuracy; // Accuracy in meters
+
+        // Add marker
+        this.addMarker(lat, lng);
+        this.updateCoordinates(lat, lng);
+
+        // Show accuracy info to user
+        let accuracyMessage = '';
+        if (accuracy < 10) {
+          accuracyMessage = 'Précision excellente (GPS)';
+        } else if (accuracy < 50) {
+          accuracyMessage = 'Précision bonne';
+        } else if (accuracy < 100) {
+          accuracyMessage = 'Précision acceptable';
+        } else {
+          accuracyMessage = 'Précision approximative - Vérifiez sur la carte';
+        }
+
+        // Restore button
+        if (button && originalText) {
+          button.textContent = originalText;
+          button.removeAttribute('disabled');
+        }
+
+        // Show success message with accuracy
+        alert(`Position récupérée avec succès !\n${accuracyMessage}\nPrécision : ±${Math.round(accuracy)} mètres\n\nVous pouvez ajuster le marqueur sur la carte si nécessaire.`);
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+        
+        // Restore button
+        if (button && originalText) {
+          button.textContent = originalText;
+          button.removeAttribute('disabled');
+        }
+
+        // Better error messages
+        let errorMessage = 'Impossible d\'obtenir votre localisation.';
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Permission de géolocalisation refusée. Veuillez autoriser l\'accès à votre position dans les paramètres du navigateur.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Position indisponible. Vérifiez que votre GPS/Wi-Fi est activé.';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'Délai d\'attente dépassé. Veuillez réessayer ou sélectionner manuellement sur la carte.';
+            break;
+        }
+        alert(errorMessage);
+      },
+      {
+        enableHighAccuracy: true, // Use GPS if available for better accuracy
+        timeout: 10000, // 10 seconds timeout
+        maximumAge: 0 // Don't use cached position
+      }
+    );
+  }
+
   loadData(): void {
     // Load property types
     this.propertyService.getPropertyTypes().subscribe({
       next: (response) => {
-        if (response.success) {
-          this.propertyTypes = response.data || [];
-        }
+        this.propertyTypes = this.extractArrayData(response);
+      },
+      error: (error) => {
+        console.error('Error loading property types:', error);
+        this.propertyTypes = [];
       }
     });
 
     // Load departments
     this.locationService.getDepartments().subscribe({
       next: (response) => {
-        console.log('Departments response:', response);
-        if (response.success) {
-          this.departments = response.data || [];
-        } else if (Array.isArray(response)) {
-          // Si la réponse est directement un tableau
-          this.departments = response;
-        } else if (response.data && Array.isArray(response.data)) {
-          this.departments = response.data;
-        }
-        console.log('Departments loaded:', this.departments);
+        this.departments = this.extractArrayData(response);
       },
       error: (error) => {
         console.error('Error loading departments:', error);
+        this.departments = [];
       }
     });
 
     // Load features
     this.propertyService.getPropertyFeatures().subscribe({
       next: (response) => {
-        if (response.success) {
-          this.features = response.data || [];
-        }
+        this.features = this.extractArrayData(response);
+      },
+      error: (error) => {
+        console.error('Error loading features:', error);
+        this.features = [];
       }
     });
 
@@ -179,9 +367,11 @@ export class CreatePropertyComponent implements OnInit {
   loadCommunes(departmentId: number): void {
     this.locationService.getCommunes(departmentId).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.communes = response.data || [];
-        }
+        this.communes = this.extractArrayData(response);
+      },
+      error: (error) => {
+        console.error('Error loading communes:', error);
+        this.communes = [];
       }
     });
   }
@@ -189,9 +379,11 @@ export class CreatePropertyComponent implements OnInit {
   loadArrondissements(communeId: number): void {
     this.locationService.getArrondissements(communeId).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.arrondissements = response.data || [];
-        }
+        this.arrondissements = this.extractArrayData(response);
+      },
+      error: (error) => {
+        console.error('Error loading arrondissements:', error);
+        this.arrondissements = [];
       }
     });
   }
@@ -199,9 +391,11 @@ export class CreatePropertyComponent implements OnInit {
   loadTowns(communeId?: number, arrondissementId?: number): void {
     this.locationService.getTowns(communeId, arrondissementId).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.towns = response.data || [];
-        }
+        this.towns = this.extractArrayData(response);
+      },
+      error: (error) => {
+        console.error('Error loading towns:', error);
+        this.towns = [];
       }
     });
   }
@@ -210,6 +404,10 @@ export class CreatePropertyComponent implements OnInit {
     if (this.isStepValid()) {
       if (this.currentStep < this.totalSteps) {
         this.currentStep++;
+        // Initialize map when reaching step 4
+        if (this.currentStep === 4 && !this.mapInitialized) {
+          setTimeout(() => this.initMap(), 100);
+        }
       }
     }
   }
@@ -217,6 +415,10 @@ export class CreatePropertyComponent implements OnInit {
   previousStep(): void {
     if (this.currentStep > 1) {
       this.currentStep--;
+      // Initialize map if going back to step 4
+      if (this.currentStep === 4 && !this.mapInitialized) {
+        setTimeout(() => this.initMap(), 100);
+      }
     }
   }
 

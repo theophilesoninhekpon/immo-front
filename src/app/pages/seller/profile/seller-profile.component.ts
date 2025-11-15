@@ -184,7 +184,11 @@ export class SellerProfileComponent implements OnInit {
   }
 
   getDocumentUrl(document: any): string {
-    // Utiliser l'URL de l'API depuis l'environnement
+    // Use the url attribute from backend (Supabase Storage URL)
+    if (document?.url) {
+      return document.url;
+    }
+    // Fallback to file_path if url is not available
     const baseUrl = environment.apiUrl.replace('/api', '');
     return `${baseUrl}/storage/${document.file_path}`;
   }

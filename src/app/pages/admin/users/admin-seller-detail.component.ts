@@ -168,6 +168,11 @@ export class AdminSellerDetailComponent implements OnInit {
   }
 
   getDocumentUrl(document: any): string {
+    // Use the url attribute from backend (Supabase Storage URL)
+    if (document?.url) {
+      return document.url;
+    }
+    // Fallback to file_path if url is not available
     const baseUrl = environment.apiUrl.replace('/api', '');
     return `${baseUrl}/storage/${document.file_path}`;
   }
