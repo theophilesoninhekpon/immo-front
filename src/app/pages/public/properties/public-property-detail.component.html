@@ -230,6 +230,24 @@
         </div>
       } @else {
         <form [formGroup]="interestForm" (ngSubmit)="submitInterest()" class="space-y-4">
+          <!-- Nom -->
+          <div>
+            <label for="contact_name" class="block text-sm font-semibold text-slate-700 mb-2">
+              Nom complet <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="contact_name"
+              formControlName="contact_name"
+              class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              placeholder="Votre nom complet"
+              [class.border-red-500]="interestForm.get('contact_name')?.invalid && interestForm.get('contact_name')?.touched"
+            />
+            @if (interestForm.get('contact_name')?.hasError('required') && interestForm.get('contact_name')?.touched) {
+              <p class="mt-1 text-sm text-red-600">Le nom est requis</p>
+            }
+          </div>
+
           <!-- Téléphone -->
           <div>
             <label for="contact_phone" class="block text-sm font-semibold text-slate-700 mb-2">

@@ -102,8 +102,14 @@ export class BuyerPropertyDetailComponent implements OnInit {
     }
 
     this.submittingInterest = true;
+    // Construire le nom complet depuis les informations de l'utilisateur
+    const contactName = currentUser.first_name && currentUser.name 
+      ? `${currentUser.first_name} ${currentUser.name}`.trim()
+      : currentUser.first_name || currentUser.name || currentUser.email || '';
+    
     const data = {
       property_id: this.property.id,
+      contact_name: contactName,
       message: this.interestForm.message,
       contact_phone: this.interestForm.contact_phone || undefined
     };

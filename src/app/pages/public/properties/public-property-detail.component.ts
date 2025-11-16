@@ -39,6 +39,7 @@ export class PublicPropertyDetailComponent implements OnInit {
 
     // Initialiser le formulaire d'intérêt
     this.interestForm = this.fb.group({
+      contact_name: ['', [Validators.required]],
       contact_phone: ['', [Validators.required, Validators.pattern(/^01\d{8}$/)]],
       contact_email: ['', [Validators.email]],
       message: ['']
@@ -135,6 +136,7 @@ export class PublicPropertyDetailComponent implements OnInit {
     this.submittingInterest = true;
     const formData = {
       property_id: this.property.id,
+      contact_name: this.interestForm.get('contact_name')?.value?.trim() || null,
       contact_phone: this.interestForm.get('contact_phone')?.value?.trim().replace(/\s+/g, ''),
       contact_email: this.interestForm.get('contact_email')?.value?.trim() || null,
       message: this.interestForm.get('message')?.value?.trim() || null
