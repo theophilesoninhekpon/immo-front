@@ -13,6 +13,19 @@
     
     <!-- Login Card -->
     <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-8">
+      @if (registered) {
+        <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg">
+          <div class="flex items-start">
+            <svg class="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="flex-1">
+              <h3 class="text-sm font-semibold text-green-800 mb-1">Inscription réussie !</h3>
+              <p class="text-sm text-green-700">Votre compte a été créé avec succès. Veuillez vous connecter pour accéder à votre dashboard.</p>
+            </div>
+          </div>
+        </div>
+      }
       @if (error) {
         <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
           <div class="flex items-start">

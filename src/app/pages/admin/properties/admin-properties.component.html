@@ -212,7 +212,7 @@
                   <td class="px-6 py-4 relative">
                     <div class="relative menu-container">
                       <button 
-                        (click)="toggleMenu(property.id, $event)"
+                        (click)="toggleMenu(property.id, $event); $event.stopPropagation()"
                         class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors duration-200"
                         title="Actions"
                       >
@@ -225,8 +225,9 @@
                         <div 
                           class="fixed w-56 bg-white rounded-xl shadow-2xl border border-slate-200 z-[9999] py-2 max-h-[80vh] overflow-y-auto"
                           [style.top.px]="menuPosition.top"
-                          [style.right.px]="menuPosition.right"
+                          [style.left.px]="menuPosition.left"
                           [style.max-height.px]="getMaxMenuHeight()"
+                          (click)="$event.stopPropagation()"
                         >
                           <button 
                             (click)="handleAction('view', property.id)"
@@ -355,7 +356,7 @@
               </button>
               <div class="relative menu-container">
                 <button 
-                  (click)="toggleMenu(property.id, $event)"
+                  (click)="toggleMenu(property.id, $event); $event.stopPropagation()"
                   class="p-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors duration-200"
                   title="Plus d'actions"
                 >
@@ -368,8 +369,9 @@
                   <div 
                     class="fixed w-56 bg-white rounded-xl shadow-2xl border border-slate-200 z-[9999] py-2 max-h-[80vh] overflow-y-auto"
                     [style.top.px]="menuPosition.top"
-                    [style.right.px]="menuPosition.right"
+                    [style.left.px]="menuPosition.left"
                     [style.max-height.px]="getMaxMenuHeight()"
+                    (click)="$event.stopPropagation()"
                   >
                     <button 
                       (click)="handleAction('edit', property.id)"

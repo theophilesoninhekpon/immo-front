@@ -21,11 +21,19 @@ export class LoginComponent {
   error: string = '';
   loading = false;
   showPassword = false;
+  registered = false;
 
   constructor() {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]]
+    });
+    
+    // Vérifier si l'utilisateur vient de s'inscrire
+    this.route.queryParams.subscribe(params => {
+      if (params['registered'] === 'true') {
+        this.registered = true;
+      }
     });
   }
 

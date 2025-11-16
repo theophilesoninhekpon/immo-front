@@ -61,6 +61,10 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/admin/users/buyers.component').then(m => m.BuyersComponent)
       },
       {
+        path: 'users',
+        loadComponent: () => import('./pages/admin/users/all-users.component').then(m => m.AllUsersComponent)
+      },
+      {
         path: 'document-types',
         loadComponent: () => import('./pages/admin/document-types/document-types.component').then(m => m.DocumentTypesComponent)
       },

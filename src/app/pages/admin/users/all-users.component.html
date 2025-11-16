@@ -1,0 +1,344 @@
+<div class="min-h-screen bg-slate-50 py-8 px-4">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900 mb-2">Gestion des utilisateurs</h1>
+        <p class="text-slate-600">Gérez tous les utilisateurs de la plateforme</p>
+      </div>
+      <button
+        (click)="openAddModal()"
+        class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        <span>Ajouter un utilisateur</span>
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Recherche</label>
+          <input
+            type="text"
+            [(ngModel)]="filters.search"
+            placeholder="Nom, email, téléphone..."
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Rôle</label>
+          <select
+            [(ngModel)]="filters.role"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Tous les rôles</option>
+            <option value="admin">Administrateur</option>
+            <option value="vendeur">Vendeur</option>
+            <option value="acheteur">Acheteur</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Statut de vérification</label>
+          <select
+            [(ngModel)]="filters.verification_status"
+            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Tous les statuts</option>
+            <option value="pending">En attente</option>
+            <option value="verified">Vérifié</option>
+            <option value="rejected">Rejeté</option>
+          </select>
+        </div>
+        <div class="flex items-end gap-2">
+          <button
+            (click)="applyFilters()"
+            class="flex-1 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Filtrer
+          </button>
+          <button
+            (click)="resetFilters()"
+            class="px-4 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition-colors"
+          >
+            Réinitialiser
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+      @if (loading) {
+        <div class="p-12 text-center">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p class="mt-4 text-slate-600">Chargement...</p>
+        </div>
+      } @else if (users.length === 0) {
+        <div class="p-12 text-center">
+          <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          <p class="mt-4 text-slate-600">Aucun utilisateur trouvé</p>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Utilisateur</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Email</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Téléphone</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Rôle</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Statut</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Date</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-slate-200">
+              @for (user of users; track user.id) {
+                <tr class="hover:bg-slate-50">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span class="text-white font-semibold text-sm">
+                          {{ user.first_name?.charAt(0) }}{{ user.name?.charAt(0) }}
+                        </span>
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-slate-900">
+                          {{ user.first_name }} {{ user.name }}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-slate-900">{{ user.email }}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-slate-900">{{ user.phone || '-' }}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                      {{ getRoleLabel(user.roles || user.role) }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full {{ getStatusColor(user.verification_status) }}">
+                      {{ getStatusLabel(user.verification_status) }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                    {{ user.created_at | date:'dd/MM/yyyy' }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex items-center justify-end space-x-2">
+                      <button
+                        (click)="openEditModal(user)"
+                        class="text-blue-600 hover:text-blue-900 p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Modifier"
+                      >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                      </button>
+                      <button
+                        (click)="deleteUser(user)"
+                        class="text-red-600 hover:text-red-900 p-2 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Supprimer"
+                      >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages > 1) {
+          <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-between">
+            <div class="text-sm text-slate-700">
+              Affichage de <span class="font-medium">{{ (currentPage - 1) * filters.per_page + 1 }}</span> à 
+              <span class="font-medium">{{ Math.min(currentPage * filters.per_page, total) }}</span> sur 
+              <span class="font-medium">{{ total }}</span> utilisateurs
+            </div>
+            <div class="flex items-center space-x-2">
+              <button
+                (click)="changePage(currentPage - 1)"
+                [disabled]="currentPage === 1"
+                class="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Précédent
+              </button>
+              <span class="px-4 py-2 text-sm text-slate-700">
+                Page {{ currentPage }} sur {{ totalPages }}
+              </span>
+              <button
+                (click)="changePage(currentPage + 1)"
+                [disabled]="currentPage === totalPages"
+                class="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Suivant
+              </button>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Modal Add/Edit User -->
+  @if (showModal) {
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" (click)="closeModal()">
+      <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+        <div class="p-6 border-b border-slate-200">
+          <h2 class="text-2xl font-bold text-slate-900">
+            {{ editingUser ? 'Modifier l\'utilisateur' : 'Ajouter un utilisateur' }}
+          </h2>
+        </div>
+
+        <div class="p-6">
+          @if (error) {
+            <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
+              <p class="text-sm text-red-800">{{ error }}</p>
+            </div>
+          }
+
+          @if (success) {
+            <div class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg">
+              <p class="text-sm text-green-800">{{ success }}</p>
+            </div>
+          }
+
+          <form (ngSubmit)="saveUser()" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Prénom *</label>
+                <input
+                  type="text"
+                  [(ngModel)]="userForm.first_name"
+                  name="first_name"
+                  required
+                  class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Nom *</label>
+                <input
+                  type="text"
+                  [(ngModel)]="userForm.name"
+                  name="name"
+                  required
+                  class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Email *</label>
+                <input
+                  type="email"
+                  [(ngModel)]="userForm.email"
+                  name="email"
+                  required
+                  class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Téléphone</label>
+                <input
+                  type="tel"
+                  [(ngModel)]="userForm.phone"
+                  name="phone"
+                  class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Rôle *</label>
+                <select
+                  [(ngModel)]="userForm.role"
+                  name="role"
+                  required
+                  class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="admin">Administrateur</option>
+                  <option value="vendeur">Vendeur</option>
+                  <option value="acheteur">Acheteur</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Statut de vérification *</label>
+                <select
+                  [(ngModel)]="userForm.verification_status"
+                  name="verification_status"
+                  required
+                  class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="pending">En attente</option>
+                  <option value="verified">Vérifié</option>
+                  <option value="rejected">Rejeté</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">
+                  Mot de passe {{ editingUser ? '(laisser vide pour ne pas modifier)' : '*' }}
+                </label>
+                <input
+                  type="password"
+                  [(ngModel)]="userForm.password"
+                  name="password"
+                  [required]="!editingUser"
+                  class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">
+                  Confirmer le mot de passe {{ editingUser ? '(laisser vide pour ne pas modifier)' : '*' }}
+                </label>
+                <input
+                  type="password"
+                  [(ngModel)]="userForm.password_confirmation"
+                  name="password_confirmation"
+                  [required]="!editingUser"
+                  class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-4 pt-4 border-t border-slate-200">
+              <button
+                type="button"
+                (click)="closeModal()"
+                class="px-6 py-2 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                {{ editingUser ? 'Modifier' : 'Créer' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+

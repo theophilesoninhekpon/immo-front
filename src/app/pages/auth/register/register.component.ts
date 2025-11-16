@@ -190,16 +190,11 @@ export class RegisterComponent {
     this.authService.register(this.registerForm.value).subscribe({
         next: (response) => {
           if (response.success) {
-            const user = response.data.user;
-            
-            // Rediriger selon le rôle
-            if (user.roles?.some(r => r.name === 'admin')) {
-              this.router.navigate(['/admin']);
-            } else if (user.roles?.some(r => r.name === 'vendeur')) {
-              this.router.navigate(['/seller']);
-            } else {
-              this.router.navigate(['/buyer']);
-            }
+            // Afficher le message de succès
+            // Rediriger vers la page de connexion pour qu'il se connecte
+            this.router.navigate(['/login'], {
+              queryParams: { registered: 'true' }
+            });
           }
         },
         error: (err) => {

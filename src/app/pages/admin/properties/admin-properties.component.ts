@@ -21,7 +21,7 @@ export class AdminPropertiesComponent implements OnInit, OnDestroy {
   deletingId: number | null = null;
   viewMode: 'table' | 'grid' = 'table';
   openMenuId: number | null = null;
-  menuPosition: { top: number; right: number; bottom?: number } | null = null;
+  menuPosition: { top: number; left: number } | null = null;
   filters = {
     status: '',
     is_verified: '',
@@ -175,38 +175,86 @@ export class AdminPropertiesComponent implements OnInit, OnDestroy {
   }
 
   toggleMenu(propertyId: number, event?: MouseEvent): void {
+    // Empêcher la propagation du clic pour éviter que le HostListener ne ferme le menu
+    if (event) {
+      event.stopPropagation();
+    }
+    
     if (this.openMenuId === propertyId) {
       this.openMenuId = null;
       this.menuPosition = null;
-    } else {
-      this.openMenuId = propertyId;
-      if (event) {
+      return;
+    }
+    
+    // Fermer le menu précédent s'il existe
+    this.openMenuId = propertyId;
+    this.menuPosition = null;
+    
+    // Utiliser setTimeout pour s'assurer que le DOM est prêt
+    setTimeout(() => {
+      if (event && this.openMenuId === propertyId) {
         const button = event.currentTarget as HTMLElement;
         const rect = button.getBoundingClientRect();
-        const menuHeight = 280; // Hauteur approximative du menu
+        
+        // Dimensions du menu
+        const menuWidth = 224; // w-56 = 14rem = 224px
+        const menuHeight = 300; // Hauteur approximative maximale
+        const padding = 10; // Marge de sécurité
+        
+        // Calculer la position horizontale (left)
+        let menuLeft = rect.right - menuWidth;
+        
+        // Si le menu dépasse à gauche, l'aligner à droite du bouton
+        if (menuLeft < padding) {
+          menuLeft = rect.left;
+        }
+        
+        // Si le menu dépasse toujours à droite, l'aligner à gauche du bouton
+        if (menuLeft + menuWidth > window.innerWidth - padding) {
+          menuLeft = rect.left - menuWidth;
+        }
+        
+        // S'assurer que le menu ne dépasse pas à gauche
+        if (menuLeft < padding) {
+          menuLeft = padding;
+        }
+        
+        // Calculer la position verticale (top)
         const spaceBelow = window.innerHeight - rect.bottom;
         const spaceAbove = rect.top;
         const scrollY = window.scrollY || window.pageYOffset;
         
-        // Aligner le menu avec le bouton mais légèrement décalé pour voir le bouton
-        // Commencer au niveau du haut du bouton
-        let menuTop = rect.top + scrollY;
+        let menuTop: number;
         
-        // Si le menu dépasserait en bas, ajuster vers le haut
-        if (spaceBelow < menuHeight && spaceAbove > spaceBelow) {
-          menuTop = rect.top + scrollY - (menuHeight - spaceBelow) - 10;
-          menuTop = Math.max(10, menuTop); // Ne pas dépasser le haut de l'écran
-        } else {
-          // Sinon, décaler légèrement vers le bas pour voir le bouton (environ 8px)
-          menuTop = rect.top + scrollY + 8;
+        // Si on a assez d'espace en bas, placer le menu en bas du bouton
+        if (spaceBelow >= menuHeight + padding) {
+          menuTop = rect.bottom + scrollY + 5;
+        }
+        // Si on a plus d'espace en haut qu'en bas, placer le menu au-dessus
+        else if (spaceAbove > spaceBelow) {
+          menuTop = rect.top + scrollY - menuHeight - 5;
+          // S'assurer que le menu ne dépasse pas en haut
+          if (menuTop < scrollY + padding) {
+            menuTop = scrollY + padding;
+          }
+        }
+        // Sinon, placer le menu en bas mais ajuster la hauteur max
+        else {
+          menuTop = rect.bottom + scrollY + 5;
+        }
+        
+        // S'assurer que le menu ne dépasse pas en bas
+        const maxTop = scrollY + window.innerHeight - menuHeight - padding;
+        if (menuTop > maxTop) {
+          menuTop = Math.max(scrollY + padding, maxTop);
         }
         
         this.menuPosition = {
           top: menuTop,
-          right: window.innerWidth - rect.right
+          left: menuLeft
         };
       }
-    }
+    }, 0);
   }
 
   closeMenu(): void {
@@ -218,14 +266,19 @@ export class AdminPropertiesComponent implements OnInit, OnDestroy {
     if (!this.menuPosition) return 300;
     const scrollY = window.scrollY || window.pageYOffset;
     const menuTop = this.menuPosition.top - scrollY;
+    const padding = 10;
     
-    // Calculer la hauteur maximale disponible
-    const spaceBelow = window.innerHeight - menuTop - 10; // 10px de marge en bas
-    const spaceAbove = menuTop - 10; // 10px de marge en haut
+    // Calculer la hauteur maximale disponible en bas
+    const spaceBelow = window.innerHeight - menuTop - padding;
     
-    // Utiliser l'espace disponible (en bas ou en haut selon la position)
-    const maxHeight = Math.max(spaceBelow, spaceAbove);
-    return Math.min(Math.max(maxHeight, 200), 400); // Minimum 200px, maximum 400px
+    // Calculer la hauteur maximale disponible en haut (si le menu est au-dessus)
+    const spaceAbove = menuTop - padding;
+    
+    // Utiliser l'espace disponible, avec un minimum de 200px
+    const maxHeight = Math.max(Math.max(spaceBelow, spaceAbove), 200);
+    
+    // Limiter à 400px maximum
+    return Math.min(maxHeight, 400);
   }
 
   handleAction(action: string, propertyId: number): void {
